@@ -8,9 +8,17 @@
     "apps/*"
   ],
   "scripts": {
-    "test": "bun test",
+    "test": "bun test --filter 'packages/**'",
+    "test:integration": "bun test --filter 'tests/integration/**'",
+    "test:all": "bun test",
     "test:watch": "bun test --watch",
     "typecheck": "tsc --noEmit",
+    "db:generate": "bun run --cwd packages/storage db:generate",
+    "db:migrate:dev": "bun run --cwd packages/storage db:migrate:dev",
+    "db:migrate:deploy": "bun run --cwd packages/storage db:migrate:deploy",
+    "db:migrate:reset": "bun run --cwd packages/storage db:migrate:reset",
+    "db:push": "bun run --cwd packages/storage db:push",
+    "db:studio": "bun run --cwd packages/storage db:studio",
     "clean": "rm -rf node_modules"
   },
   "devDependencies": {

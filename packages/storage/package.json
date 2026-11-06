@@ -1,0 +1,30 @@
+{
+  "name": "@durable/storage",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./repositories": "./src/repositories/index.ts",
+    "./errors": "./src/errors/index.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "db:generate": "bunx prisma generate --schema=prisma/schema.prisma",
+    "db:migrate:dev": "bunx prisma migrate dev --schema=prisma/schema.prisma",
+    "db:migrate:deploy": "bunx prisma migrate deploy --schema=prisma/schema.prisma",
+    "db:migrate:reset": "bunx prisma migrate reset --schema=prisma/schema.prisma --force",
+    "db:push": "bunx prisma db push --schema=prisma/schema.prisma",
+    "db:studio": "bunx prisma studio --schema=prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@durable/shared": "workspace:*",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "*",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "prisma": "*"
+  }
+}

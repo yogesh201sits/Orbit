@@ -1,4 +1,4 @@
-# durable-workflows
+# Orbit
 
 To install dependencies:
 
