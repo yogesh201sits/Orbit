@@ -18,6 +18,7 @@ describe("WorkerLifecycle", () => {
     autoRecoverLeases: true,
     recoveryIntervalMs: 10000,
     handleSignals: false,
+    autoStartPolling: false,
     metadata: { env: "test" },
   };
 
