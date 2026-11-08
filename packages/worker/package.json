@@ -1,0 +1,25 @@
+{
+  "name": "@durable/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./lifecycle": "./src/lifecycle/index.ts",
+    "./claiming": "./src/claiming/index.ts",
+    "./leases": "./src/leases/index.ts",
+    "./heartbeat": "./src/heartbeat/index.ts",
+    "./execution": "./src/execution/index.ts",
+    "./recovery": "./src/recovery/index.ts",
+    "./errors": "./src/errors/index.ts"
+  },
+  "dependencies": {
+    "@durable/shared": "workspace:*",
+    "@durable/storage": "workspace:*",
+    "@durable/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "latest"
+  }
+}
