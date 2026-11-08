@@ -4,20 +4,25 @@ import { LeaseLostError } from "../errors/worker-errors";
 
 export interface LeaseManagerOptions {
   readonly client: PrismaClient;
-  readonly workerId: string;
+  readonly workerId: string | (() => string);
   readonly defaultLeaseDurationMs?: number | undefined;
 }
 
 export class LeaseManager {
   private readonly client: PrismaClient;
-  private readonly workerId: string;
+  private readonly getWorkerId: () => string;
   private readonly defaultLeaseDurationMs: number;
   private readonly activeLeases = new Map<string, ActiveJobLease>();
 
   constructor(options: LeaseManagerOptions) {
     this.client = options.client;
-    this.workerId = options.workerId;
+    const wid = options.workerId;
+    this.getWorkerId = typeof wid === "function" ? wid : () => wid;
     this.defaultLeaseDurationMs = options.defaultLeaseDurationMs ?? 30_000;
+  }
+
+  get workerId(): string {
+    return this.getWorkerId();
   }
 
   /**

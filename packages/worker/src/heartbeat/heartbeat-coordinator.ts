@@ -6,7 +6,7 @@ export interface HeartbeatCoordinatorOptions {
   readonly workerRepo: IWorkerRepository;
   readonly leaseManager: LeaseManager;
   readonly tenantId: string;
-  readonly workerId: string;
+  readonly workerId: string | (() => string);
   readonly heartbeatIntervalMs?: number | undefined;
   readonly leaseDurationMs?: number | undefined;
   readonly maxConsecutiveFailures?: number | undefined;
@@ -25,7 +25,7 @@ export class HeartbeatCoordinator {
   private readonly workerRepo: IWorkerRepository;
   private readonly leaseManager: LeaseManager;
   private readonly tenantId: string;
-  private readonly workerId: string;
+  private readonly getWorkerId: () => string;
   private readonly heartbeatIntervalMs: number;
   private readonly leaseDurationMs: number;
   private readonly maxConsecutiveFailures: number;
@@ -39,11 +39,16 @@ export class HeartbeatCoordinator {
     this.workerRepo = options.workerRepo;
     this.leaseManager = options.leaseManager;
     this.tenantId = options.tenantId;
-    this.workerId = options.workerId;
+    const wid = options.workerId;
+    this.getWorkerId = typeof wid === "function" ? wid : () => wid;
     this.heartbeatIntervalMs = options.heartbeatIntervalMs ?? 10_000;
     this.leaseDurationMs = options.leaseDurationMs ?? 30_000;
     this.maxConsecutiveFailures = options.maxConsecutiveFailures ?? 3;
     this.onDatabaseFailure = options.onDatabaseFailure;
+  }
+
+  get workerId(): string {
+    return this.getWorkerId();
   }
 
   /**

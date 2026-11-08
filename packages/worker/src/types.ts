@@ -42,6 +42,7 @@ export interface WorkerOptions {
   readonly autoRecoverLeases?: boolean | undefined;
   readonly recoveryIntervalMs?: number | undefined;
   readonly handleSignals?: boolean | undefined;
+  readonly autoStartPolling?: boolean | undefined;
   readonly engine?: ExecutionEngine | undefined;
   readonly metadata?: Json | undefined;
 }
@@ -60,6 +61,7 @@ export interface WorkerConfig {
   readonly autoRecoverLeases: boolean;
   readonly recoveryIntervalMs: number;
   readonly handleSignals: boolean;
+  readonly autoStartPolling: boolean;
   readonly metadata?: Json | undefined;
 }
 

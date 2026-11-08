@@ -3,7 +3,7 @@ import type { IJobRepository, JobRecord } from "@durable/storage";
 export interface JobClaimerOptions {
   readonly jobRepo: IJobRepository;
   readonly tenantId: string;
-  readonly workerId: string;
+  readonly workerId: string | (() => string);
   readonly queues: string[];
   readonly concurrency: number;
   readonly leaseDurationMs?: number | undefined;
@@ -14,7 +14,7 @@ export interface JobClaimerOptions {
 export class JobClaimer {
   private readonly jobRepo: IJobRepository;
   private readonly tenantId: string;
-  private readonly workerId: string;
+  private readonly getWorkerId: () => string;
   private readonly queues: string[];
   private readonly concurrency: number;
   private readonly leaseDurationMs: number;
@@ -24,7 +24,8 @@ export class JobClaimer {
   constructor(options: JobClaimerOptions) {
     this.jobRepo = options.jobRepo;
     this.tenantId = options.tenantId;
-    this.workerId = options.workerId;
+    const wid = options.workerId;
+    this.getWorkerId = typeof wid === "function" ? wid : () => wid;
     this.queues = [...options.queues];
     this.concurrency = options.concurrency;
     this.leaseDurationMs = options.leaseDurationMs ?? 30_000;
@@ -55,7 +56,7 @@ export class JobClaimer {
     return this.jobRepo.dequeue(
       this.tenantId,
       this.queues,
-      this.workerId,
+      this.getWorkerId(),
       this.leaseDurationMs
     );
   }
