@@ -4,6 +4,8 @@ import type {
   WorkerStatus,
   WorkflowRunStatus,
   WorkflowStepStatus,
+  ScheduleStatus,
+  MissedExecutionPolicy,
 } from "../generated/prisma/enums";
 
 // ─── Common Types ─────────────────────────────────────────────────────
@@ -366,4 +368,65 @@ export interface IOutboxRepository {
    */
   fetchUnpublished(batchSize: number, tx?: TransactionClient): Promise<readonly OutboxEventRecord[]>;
   markPublished(ids: string[], tx?: TransactionClient): Promise<void>;
+}
+
+// ─── Schedule Repository ─────────────────────────────────────────────
+
+export interface CreateWorkflowScheduleInput {
+  readonly tenantId: string;
+  readonly workflowId: string;
+  readonly cronExpression?: string | undefined;
+  readonly timezone?: string | undefined;
+  readonly input?: Json | undefined;
+  readonly missedExecutionPolicy?: MissedExecutionPolicy | undefined;
+  readonly nextRunAt: Date;
+}
+
+export interface UpdateWorkflowScheduleInput {
+  readonly cronExpression?: string | undefined;
+  readonly timezone?: string | undefined;
+  readonly input?: Json | undefined;
+  readonly missedExecutionPolicy?: MissedExecutionPolicy | undefined;
+  readonly status?: ScheduleStatus | undefined;
+  readonly nextRunAt?: Date | undefined;
+  readonly lastRunAt?: Date | undefined;
+  readonly leaseOwner?: string | null | undefined;
+  readonly leaseExpiresAt?: Date | null | undefined;
+}
+
+export interface WorkflowScheduleRecord {
+  readonly id: string;
+  readonly tenantId: string;
+  readonly workflowId: string;
+  readonly cronExpression: string | null;
+  readonly timezone: string;
+  readonly input: unknown;
+  readonly missedExecutionPolicy: MissedExecutionPolicy;
+  readonly status: ScheduleStatus;
+  readonly nextRunAt: Date;
+  readonly lastRunAt: Date | null;
+  readonly leaseOwner: string | null;
+  readonly leaseExpiresAt: Date | null;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+}
+
+export interface IScheduleRepository {
+  create(input: CreateWorkflowScheduleInput, tx?: TransactionClient): Promise<WorkflowScheduleRecord>;
+  findById(tenantId: string, id: string, tx?: TransactionClient): Promise<WorkflowScheduleRecord | null>;
+  update(tenantId: string, id: string, input: UpdateWorkflowScheduleInput, tx?: TransactionClient): Promise<WorkflowScheduleRecord>;
+  cancel(tenantId: string, id: string, tx?: TransactionClient): Promise<WorkflowScheduleRecord>;
+  claimDueSchedules(
+    schedulerId: string,
+    limit: number,
+    leaseDurationMs?: number,
+    now?: Date,
+    tx?: TransactionClient
+  ): Promise<readonly WorkflowScheduleRecord[]>;
+  recoverExpiredLeases(now?: Date, tx?: TransactionClient): Promise<number>;
+  list(
+    tenantId: string,
+    pagination: PaginationParams,
+    tx?: TransactionClient
+  ): Promise<PaginatedResult<WorkflowScheduleRecord>>;
 }

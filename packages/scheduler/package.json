@@ -1,0 +1,25 @@
+{
+  "name": "@durable/scheduler",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./scheduling": "./src/scheduling/index.ts",
+    "./recurrence": "./src/recurrence/index.ts",
+    "./dispatch": "./src/dispatch/index.ts",
+    "./coordination": "./src/coordination/index.ts",
+    "./recovery": "./src/recovery/index.ts",
+    "./errors": "./src/errors/index.ts"
+  },
+  "dependencies": {
+    "@durable/shared": "workspace:*",
+    "@durable/storage": "workspace:*",
+    "@durable/engine": "workspace:*",
+    "croner": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "latest"
+  }
+}

@@ -48,6 +48,22 @@ enum WorkerStatus {
   @@map("worker_status")
 }
 
+enum ScheduleStatus {
+  ACTIVE    @map("active")
+  PAUSED    @map("paused")
+  CANCELLED @map("cancelled")
+
+  @@map("schedule_status")
+}
+
+enum MissedExecutionPolicy {
+  SKIP     @map("skip")
+  CATCH_UP @map("catch_up")
+  LATEST   @map("latest")
+
+  @@map("missed_execution_policy")
+}
+
 // ─── 1. Tenants ─────────────────────────────────────────────────────
 
 model Tenant {
@@ -64,6 +80,7 @@ model Tenant {
   jobs         Job[]
   workers      Worker[]
   outboxEvents OutboxEvent[]
+  schedules    WorkflowSchedule[]
 
   @@map("tenants")
 }
@@ -83,6 +100,7 @@ model Workflow {
   tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
   versions WorkflowVersion[]
   runs     WorkflowRun[]
+  schedules WorkflowSchedule[]
 
   @@unique([id, tenantId], name: "uq_workflow_id_tenant")
   @@unique([tenantId, key], name: "uq_tenant_workflow_key")
@@ -251,4 +269,33 @@ model OutboxEvent {
   @@index([published, createdAt], name: "idx_outbox_unpublished")
   @@index([tenantId, aggregateType, aggregateId], name: "idx_outbox_aggregate")
   @@map("outbox_events")
+}
+
+// ─── 10. Workflow Schedules ─────────────────────────────────────────
+
+model WorkflowSchedule {
+  id                    String                @id @default(uuid()) @db.Uuid
+  tenantId              String                @map("tenant_id") @db.Uuid
+  workflowId            String                @map("workflow_id") @db.Uuid
+  cronExpression        String?               @map("cron_expression") @db.VarChar(100)
+  timezone              String                @default("UTC") @db.VarChar(100)
+  input                 Json?                 @db.JsonB
+  missedExecutionPolicy MissedExecutionPolicy @default(SKIP) @map("missed_execution_policy")
+  status                ScheduleStatus        @default(ACTIVE)
+  nextRunAt             DateTime              @map("next_run_at") @db.Timestamptz()
+  lastRunAt             DateTime?             @map("last_run_at") @db.Timestamptz()
+
+  leaseOwner            String?               @map("lease_owner") @db.Uuid
+  leaseExpiresAt        DateTime?             @map("lease_expires_at") @db.Timestamptz()
+
+  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt             DateTime              @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  workflow Workflow @relation(fields: [workflowId, tenantId], references: [id, tenantId], onDelete: Restrict)
+
+  @@index([tenantId, status, nextRunAt], name: "idx_schedule_tenant_status_next")
+  @@index([status, nextRunAt], name: "idx_schedule_status_next")
+  @@index([status, leaseExpiresAt], name: "idx_schedule_lease_expiry")
+  @@map("workflow_schedules")
 }

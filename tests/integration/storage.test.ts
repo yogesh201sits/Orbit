@@ -55,6 +55,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   // Clean all tables in dependency order
+  await client.workflowSchedule.deleteMany();
   await client.outboxEvent.deleteMany();
   await client.workflowEvent.deleteMany();
   await client.workflowStep.deleteMany();

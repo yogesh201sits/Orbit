@@ -8,7 +8,7 @@
     "apps/*"
   ],
   "scripts": {
-    "test": "bun test --filter 'packages/**'",
+    "test": "bun test packages",
     "test:integration": "bun test tests/integration",
     "test:all": "bun test",
     "test:watch": "bun test --watch",

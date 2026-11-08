@@ -17,7 +17,11 @@
       "@durable/shared": ["./packages/shared/src/index.ts"],
       "@durable/shared/*": ["./packages/shared/src/*"],
       "@durable/storage": ["./packages/storage/src/index.ts"],
-      "@durable/storage/*": ["./packages/storage/src/*"]
+      "@durable/storage/*": ["./packages/storage/src/*"],
+      "@durable/engine": ["./packages/engine/src/index.ts"],
+      "@durable/engine/*": ["./packages/engine/src/*"],
+      "@durable/scheduler": ["./packages/scheduler/src/index.ts"],
+      "@durable/scheduler/*": ["./packages/scheduler/src/*"]
     }
   },
   "include": [

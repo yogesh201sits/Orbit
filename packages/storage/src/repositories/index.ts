@@ -46,6 +46,11 @@ export type {
   CreateOutboxEventInput,
   OutboxEventRecord,
   IOutboxRepository,
+  // Schedule
+  CreateWorkflowScheduleInput,
+  UpdateWorkflowScheduleInput,
+  WorkflowScheduleRecord,
+  IScheduleRepository,
 } from "./interfaces";
 
 // ─── Implementations ─────────────────────────────────────────────────
@@ -58,6 +63,7 @@ export { PrismaWorkflowEventRepository } from "./workflow-event.repository";
 export { PrismaJobRepository } from "./job.repository";
 export { PrismaWorkerRepository } from "./worker.repository";
 export { PrismaOutboxRepository } from "./outbox.repository";
+export { PrismaScheduleRepository } from "./schedule.repository";
 
 // ─── Transaction ─────────────────────────────────────────────────────
 export { withTransaction } from "./transaction";
