@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { PrismaClient } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import type {
   TransactionClient,
   IWorkflowStepRepository,
@@ -26,7 +26,7 @@ export class PrismaWorkflowStepRepository implements IWorkflowStepRepository {
           runId: input.runId,
           stepKey: input.stepKey,
           type: input.type,
-          status: "pending",
+          status: "PENDING",
           input: input.input ?? Prisma.JsonNull,
           attempt: 1,
         },

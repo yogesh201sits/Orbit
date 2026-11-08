@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { PrismaClient } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import type {
   TransactionClient,
   ITenantRepository,
@@ -48,14 +48,14 @@ export class PrismaTenantRepository implements ITenantRepository {
     id: string,
     tx?: TransactionClient
   ): Promise<TenantRecord | null> {
-    return this.db(tx).tenant.findUnique({ where: { id } });
+    return this.db(tx).tenant.findFirst({ where: { id, deletedAt: null } });
   }
 
   async findBySlug(
     slug: string,
     tx?: TransactionClient
   ): Promise<TenantRecord | null> {
-    return this.db(tx).tenant.findUnique({ where: { slug } });
+    return this.db(tx).tenant.findFirst({ where: { slug, deletedAt: null } });
   }
 
   async update(
@@ -63,36 +63,28 @@ export class PrismaTenantRepository implements ITenantRepository {
     input: UpdateTenantInput,
     tx?: TransactionClient
   ): Promise<TenantRecord> {
-    try {
-      return await this.db(tx).tenant.update({
-        where: { id },
-        data: {
-          ...(input.name !== undefined && { name: input.name }),
-          ...(input.metadata !== undefined && { metadata: input.metadata ?? Prisma.JsonNull }),
-        },
-      });
-    } catch (e) {
-      if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === "P2025"
-      ) {
-        throw new NotFoundError("Tenant", id);
-      }
-      throw e;
+    const result = await this.db(tx).tenant.updateMany({
+      where: { id, deletedAt: null },
+      data: {
+        ...(input.name !== undefined && { name: input.name }),
+        ...(input.metadata !== undefined && { metadata: input.metadata ?? Prisma.JsonNull }),
+      },
+    });
+    if (result.count === 0) {
+      throw new NotFoundError("Tenant", id);
     }
+    return this.db(tx).tenant.findFirstOrThrow({
+      where: { id, deletedAt: null },
+    });
   }
 
   async delete(id: string, tx?: TransactionClient): Promise<void> {
-    try {
-      await this.db(tx).tenant.delete({ where: { id } });
-    } catch (e) {
-      if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === "P2025"
-      ) {
-        throw new NotFoundError("Tenant", id);
-      }
-      throw e;
+    const result = await this.db(tx).tenant.updateMany({
+      where: { id, deletedAt: null },
+      data: { deletedAt: new Date() },
+    });
+    if (result.count === 0) {
+      throw new NotFoundError("Tenant", id);
     }
   }
 
@@ -102,11 +94,12 @@ export class PrismaTenantRepository implements ITenantRepository {
   ): Promise<PaginatedResult<TenantRecord>> {
     const [data, total] = await Promise.all([
       this.db(tx).tenant.findMany({
+        where: { deletedAt: null },
         skip: pagination.offset,
         take: pagination.limit,
         orderBy: { createdAt: "desc" },
       }),
-      this.db(tx).tenant.count(),
+      this.db(tx).tenant.count({ where: { deletedAt: null } }),
     ]);
     return { data, total, limit: pagination.limit, offset: pagination.offset };
   }

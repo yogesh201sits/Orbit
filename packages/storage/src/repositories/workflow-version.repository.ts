@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { PrismaClient } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import type {
   TransactionClient,
   IWorkflowVersionRepository,
@@ -23,17 +23,24 @@ export class PrismaWorkflowVersionRepository
     input: CreateWorkflowVersionInput,
     tx?: TransactionClient
   ): Promise<WorkflowVersionRecord> {
+    if (input.isActive && !tx) {
+      return this.client.$transaction((transaction) =>
+        this.create(input, transaction)
+      );
+    }
+
     try {
-      return await this.db(tx).workflowVersion.create({
+      const version = await this.db(tx).workflowVersion.create({
         data: {
           workflowId: input.workflowId,
           version: input.version,
           definition: input.definition as Prisma.InputJsonValue,
           checksum: input.checksum,
-          isActive: input.isActive ?? false,
-          activatedAt: input.isActive ? new Date() : null,
+          isActive: false,
+          activatedAt: null,
         },
       });
+      return input.isActive ? await this.activate(version.id, tx) : version;
     } catch (e) {
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -80,6 +87,12 @@ export class PrismaWorkflowVersionRepository
     id: string,
     tx?: TransactionClient
   ): Promise<WorkflowVersionRecord> {
+    if (!tx) {
+      return this.client.$transaction((transaction) =>
+        this.activate(id, transaction)
+      );
+    }
+
     const version = await this.db(tx).workflowVersion.findUnique({
       where: { id },
     });
@@ -87,17 +100,41 @@ export class PrismaWorkflowVersionRepository
       throw new NotFoundError("WorkflowVersion", id);
     }
 
-    // Deactivate all other versions for this workflow
+    const workflows = await tx.$queryRaw<{ tenantId: string }[]>`
+      SELECT tenant_id AS "tenantId"
+      FROM workflows
+      WHERE id = ${version.workflowId}::uuid
+      FOR UPDATE
+    `;
+    const workflow = workflows[0];
+    if (!workflow) {
+      throw new NotFoundError("Workflow", version.workflowId);
+    }
+
     await this.db(tx).workflowVersion.updateMany({
       where: { workflowId: version.workflowId, isActive: true },
       data: { isActive: false },
     });
 
     // Activate the target version
-    return this.db(tx).workflowVersion.update({
+    const activated = await this.db(tx).workflowVersion.update({
       where: { id },
       data: { isActive: true, activatedAt: new Date() },
     });
+    await tx.outboxEvent.create({
+      data: {
+        tenantId: workflow.tenantId,
+        aggregateType: "workflow",
+        aggregateId: version.workflowId,
+        eventType: "workflow.version_activated",
+        payload: {
+          workflowId: version.workflowId,
+          versionId: activated.id,
+          version: activated.version,
+        },
+      },
+    });
+    return activated;
   }
 
   async listByWorkflow(

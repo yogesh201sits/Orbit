@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "../generated/prisma/client";
 import type { TransactionClient } from "./interfaces";
 import { TransactionError } from "../errors/storage-errors";
 

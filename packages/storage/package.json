@@ -11,8 +11,10 @@
   },
   "scripts": {
     "db:generate": "bunx prisma generate --schema=prisma/schema.prisma",
+    "db:migrate:create": "bunx prisma migrate dev --create-only --schema=prisma/schema.prisma",
     "db:migrate:dev": "bunx prisma migrate dev --schema=prisma/schema.prisma",
     "db:migrate:deploy": "bunx prisma migrate deploy --schema=prisma/schema.prisma",
+    "db:migrate:status": "bunx prisma migrate status --schema=prisma/schema.prisma",
     "db:migrate:reset": "bunx prisma migrate reset --schema=prisma/schema.prisma --force",
     "db:push": "bunx prisma db push --schema=prisma/schema.prisma",
     "db:studio": "bunx prisma studio --schema=prisma/schema.prisma"
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.23.1",
+    "dotenv": "^18.0.9",
     "prisma": "*"
   }
 }

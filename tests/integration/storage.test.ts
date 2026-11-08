@@ -114,6 +114,8 @@ describe("TenantRepository", () => {
     await tenants.delete(tenant.id);
     const found = await tenants.findById(tenant.id);
     expect(found).toBeNull();
+    const retained = await client.tenant.findUnique({ where: { id: tenant.id } });
+    expect(retained?.deletedAt).toBeInstanceOf(Date);
   });
 
   test("rejects duplicate slug", async () => {
@@ -344,7 +346,7 @@ describe("WorkflowRunRepository", () => {
       input: { orderId: 42 },
     });
 
-    expect(run.status).toBe("pending");
+    expect(run.status).toBe("PENDING");
     expect(run.revision).toBe(1);
     expect(run.input).toEqual({ orderId: 42 });
   });
@@ -353,34 +355,42 @@ describe("WorkflowRunRepository", () => {
     const run = await runs.create({ tenantId, workflowId, versionId });
 
     const updated = await runs.update(tenantId, run.id, {
-      status: "running",
+      status: "RUNNING",
       startedAt: new Date(),
     }, 1);
 
-    expect(updated.status).toBe("running");
+    expect(updated.status).toBe("RUNNING");
     expect(updated.revision).toBe(2);
+    const outboxEvent = await client.outboxEvent.findFirst({
+      where: {
+        aggregateType: "workflow_run",
+        aggregateId: run.id,
+        eventType: "workflow_run.status_changed",
+      },
+    });
+    expect(outboxEvent).not.toBeNull();
   });
 
   test("rejects stale revision", async () => {
     const run = await runs.create({ tenantId, workflowId, versionId });
 
     // Update once (revision 1 → 2)
-    await runs.update(tenantId, run.id, { status: "running" }, 1);
+    await runs.update(tenantId, run.id, { status: "RUNNING" }, 1);
 
     // Try updating with stale revision 1
     await expect(
-      runs.update(tenantId, run.id, { status: "completed" }, 1)
+      runs.update(tenantId, run.id, { status: "COMPLETED" }, 1)
     ).rejects.toThrow(StaleRevisionError);
   });
 
   test("filters runs by status", async () => {
     await runs.create({ tenantId, workflowId, versionId });
     const run2 = await runs.create({ tenantId, workflowId, versionId });
-    await runs.update(tenantId, run2.id, { status: "running" }, 1);
+    await runs.update(tenantId, run2.id, { status: "RUNNING" }, 1);
 
     const pending = await runs.list(
       tenantId,
-      { status: "pending" },
+      { status: "PENDING" },
       { limit: 10, offset: 0 }
     );
     expect(pending.data.length).toBe(1);
@@ -391,7 +401,7 @@ describe("WorkflowRunRepository", () => {
     const run = await runs.create({ tenantId, workflowId, versionId });
 
     await runs.update(tenantId, run.id, {
-      status: "failed",
+      status: "FAILED",
       error: { code: "TIMEOUT", message: "Step timed out", stack: ["line1"] },
     }, 1);
 
@@ -445,7 +455,7 @@ describe("WorkflowStepRepository", () => {
     });
 
     expect(step.stepKey).toBe("send-email");
-    expect(step.status).toBe("pending");
+    expect(step.status).toBe("PENDING");
 
     const found = await steps.findByRunAndKey(runId, "send-email");
     expect(found).not.toBeNull();
@@ -461,12 +471,12 @@ describe("WorkflowStepRepository", () => {
   test("updates step status and output", async () => {
     const step = await steps.create({ runId, stepKey: "compute", type: "run" });
     const updated = await steps.update(step.id, {
-      status: "completed",
+      status: "COMPLETED",
       output: { result: 42 },
       completedAt: new Date(),
     });
 
-    expect(updated.status).toBe("completed");
+    expect(updated.status).toBe("COMPLETED");
     expect(updated.output).toEqual({ result: 42 });
   });
 
@@ -510,12 +520,11 @@ describe("WorkflowEventRepository", () => {
   });
 
   test("creates events with sequence ordering", async () => {
-    await events.create({ runId, type: "run.started", sequence: 1 });
+    await events.create({ runId, type: "run.started" });
     await events.create({
       runId,
       type: "step.completed",
       payload: { stepKey: "s1" },
-      sequence: 2,
     });
 
     const list = await events.listByRun(runId);
@@ -525,11 +534,24 @@ describe("WorkflowEventRepository", () => {
   });
 
   test("gets latest sequence number", async () => {
-    await events.create({ runId, type: "a", sequence: 1 });
-    await events.create({ runId, type: "b", sequence: 5 });
+    await events.create({ runId, type: "a" });
+    await events.create({ runId, type: "b" });
 
     const latest = await events.getLatestSequence(runId);
-    expect(latest).toBe(5);
+    expect(latest).toBe(2);
+  });
+
+  test("serializes concurrent event sequence allocation", async () => {
+    await Promise.all(
+      Array.from({ length: 8 }, (_, index) =>
+        events.create({ runId, type: `concurrent.${index}` })
+      )
+    );
+
+    const list = await events.listByRun(runId);
+    expect(list.map((event) => event.sequence)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8,
+    ]);
   });
 
   test("returns 0 for empty run", async () => {
@@ -560,7 +582,7 @@ describe("JobRepository", () => {
       priority: 5,
     });
 
-    expect(job.status).toBe("pending");
+    expect(job.status).toBe("PENDING");
     expect(job.priority).toBe(5);
     expect(job.maxRetries).toBe(3);
 
@@ -584,15 +606,67 @@ describe("JobRepository", () => {
       priority: 10,
     });
 
-    const dequeued = await jobs.dequeue(tenantId, ["q1"]);
+    const worker = await workers.create({
+      tenantId,
+      name: "claim-worker",
+      queues: ["q1"],
+    });
+    const dequeued = await jobs.dequeue(tenantId, ["q1"], worker.id);
     expect(dequeued).not.toBeNull();
     expect(dequeued!.type).toBe("high");
-    expect(dequeued!.status).toBe("processing");
+    expect(dequeued!.status).toBe("RUNNING");
+    expect(dequeued!.fencingToken).toBe(1n);
+    expect(dequeued!.leaseOwner).toBe(worker.id);
   });
 
   test("returns null when queue is empty", async () => {
-    const dequeued = await jobs.dequeue(tenantId, ["empty-queue"]);
+    const worker = await workers.create({
+      tenantId,
+      name: "empty-worker",
+      queues: ["empty-queue"],
+    });
+    const dequeued = await jobs.dequeue(tenantId, ["empty-queue"], worker.id);
     expect(dequeued).toBeNull();
+  });
+
+  test("recovers expired leases and fences the previous claim", async () => {
+    const worker = await workers.create({
+      tenantId,
+      name: "recovery-worker",
+      queues: ["recovery"],
+    });
+    const created = await jobs.create({
+      tenantId,
+      queue: "recovery",
+      type: "recover-me",
+      payload: {},
+      maxRetries: 2,
+    });
+    const claimed = await jobs.dequeue(
+      tenantId,
+      ["recovery"],
+      worker.id,
+      60_000
+    );
+    expect(claimed).not.toBeNull();
+
+    await client.job.update({
+      where: { id: created.id },
+      data: { leaseExpiresAt: new Date(Date.now() - 1_000) },
+    });
+    expect(await jobs.recoverExpiredLeases()).toBe(1);
+
+    const recovered = await jobs.findById(tenantId, created.id);
+    expect(recovered?.status).toBe("PENDING");
+    expect(recovered?.retryCount).toBe(1);
+    expect(recovered?.fencingToken).toBe(2n);
+    await expect(
+      jobs.update(
+        tenantId,
+        created.id,
+        { status: "COMPLETED", expectedFencingToken: 1n }
+      )
+    ).rejects.toThrow(ConflictError);
   });
 });
 
@@ -784,8 +858,8 @@ describe("Transactions", () => {
 
 // ─── Cascade Deletes ───────────────────────────────────────────────
 
-describe("Cascade Deletes", () => {
-  test("deleting a tenant cascades to workflows, runs, steps", async () => {
+describe("Retention deletion", () => {
+  test("deleting a tenant retains related records for explicit cleanup", async () => {
     const tenant = await tenants.create({
       name: "Cascade Tenant",
       slug: `cascade-${Date.now()}`,
@@ -808,17 +882,27 @@ describe("Cascade Deletes", () => {
       versionId: ver.id,
     });
     await steps.create({ runId: run.id, stepKey: "s1", type: "action" });
-    await events.create({ runId: run.id, type: "evt", sequence: 1 });
+    await events.create({ runId: run.id, type: "evt" });
 
-    // Delete tenant → everything cascades
     await tenants.delete(tenant.id);
 
-    // All should be gone
+    const retainedTenant = await client.tenant.findUnique({
+      where: { id: tenant.id },
+    });
     const foundWf = await client.workflow.findUnique({ where: { id: wf.id } });
     const foundVer = await client.workflowVersion.findUnique({ where: { id: ver.id } });
     const foundRun = await client.workflowRun.findUnique({ where: { id: run.id } });
-    expect(foundWf).toBeNull();
-    expect(foundVer).toBeNull();
-    expect(foundRun).toBeNull();
+    const foundStep = await client.workflowStep.findFirst({
+      where: { runId: run.id },
+    });
+    const foundEvent = await client.workflowEvent.findFirst({
+      where: { runId: run.id },
+    });
+    expect(retainedTenant?.deletedAt).toBeInstanceOf(Date);
+    expect(foundWf?.deletedAt).toBeNull();
+    expect(foundVer).not.toBeNull();
+    expect(foundRun).not.toBeNull();
+    expect(foundStep).not.toBeNull();
+    expect(foundEvent).not.toBeNull();
   });
 });

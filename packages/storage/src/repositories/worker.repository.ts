@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { PrismaClient } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import type {
   TransactionClient,
   IWorkerRepository,
@@ -24,7 +24,7 @@ export class PrismaWorkerRepository implements IWorkerRepository {
         tenantId: input.tenantId,
         name: input.name,
         queues: input.queues,
-        status: "active",
+        status: "ACTIVE",
         lastHeartbeat: new Date(),
         metadata: input.metadata ?? Prisma.JsonNull,
       },
@@ -54,7 +54,7 @@ export class PrismaWorkerRepository implements IWorkerRepository {
     }
     return this.db(tx).worker.update({
       where: { id },
-      data: { lastHeartbeat: new Date(), status: "active" },
+      data: { lastHeartbeat: new Date(), status: "ACTIVE" },
     });
   }
 
@@ -71,7 +71,7 @@ export class PrismaWorkerRepository implements IWorkerRepository {
     }
     return this.db(tx).worker.update({
       where: { id },
-      data: { status: "inactive" },
+      data: { status: "INACTIVE" },
     });
   }
 
@@ -80,7 +80,7 @@ export class PrismaWorkerRepository implements IWorkerRepository {
     tx?: TransactionClient
   ): Promise<readonly WorkerRecord[]> {
     return this.db(tx).worker.findMany({
-      where: { tenantId, status: "active" },
+      where: { tenantId, status: "ACTIVE" },
       orderBy: { lastHeartbeat: "desc" },
     });
   }

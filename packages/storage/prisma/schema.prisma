@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -52,12 +51,12 @@ enum WorkerStatus {
 // ─── 1. Tenants ─────────────────────────────────────────────────────
 
 model Tenant {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String   @db.VarChar(255)
-  slug      String   @unique @db.VarChar(255)
-  metadata  Json?    @db.JsonB
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String    @db.VarChar(255)
+  slug      String    @unique @db.VarChar(255)
+  metadata  Json?     @db.JsonB
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz()
 
   workflows    Workflow[]
@@ -72,13 +71,13 @@ model Tenant {
 // ─── 2. Workflows ───────────────────────────────────────────────────
 
 model Workflow {
-  id        String   @id @default(uuid()) @db.Uuid
-  tenantId  String   @map("tenant_id") @db.Uuid
-  key       String   @db.VarChar(255)
-  name      String   @db.VarChar(255)
-  metadata  Json?    @db.JsonB
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  key       String    @db.VarChar(255)
+  name      String    @db.VarChar(255)
+  metadata  Json?     @db.JsonB
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
   deletedAt DateTime? @map("deleted_at") @db.Timestamptz()
 
   tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
@@ -94,14 +93,14 @@ model Workflow {
 // ─── 3. Workflow Versions ───────────────────────────────────────────
 
 model WorkflowVersion {
-  id          String   @id @default(uuid()) @db.Uuid
-  workflowId  String   @map("workflow_id") @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
+  workflowId  String    @map("workflow_id") @db.Uuid
   version     Int
-  definition  Json     @db.JsonB
-  checksum    String   @db.VarChar(64)
-  isActive    Boolean  @default(false) @map("is_active")
+  definition  Json      @db.JsonB
+  checksum    String    @db.VarChar(64)
+  isActive    Boolean   @default(false) @map("is_active")
   activatedAt DateTime? @map("activated_at") @db.Timestamptz()
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
 
   workflow Workflow      @relation(fields: [workflowId], references: [id], onDelete: Restrict)
   runs     WorkflowRun[]
@@ -115,31 +114,23 @@ model WorkflowVersion {
 // ─── 4. Workflow Runs ────────────────────────────────────────────────
 
 model WorkflowRun {
-  id          String           @id @default(uuid()) @db.Uuid
-  tenantId    String           @map("tenant_id") @db.Uuid
-  workflowId  String           @map("workflow_id") @db.Uuid
-  versionId   String           @map("version_id") @db.Uuid
+  id          String            @id @default(uuid()) @db.Uuid
+  tenantId    String            @map("tenant_id") @db.Uuid
+  workflowId  String            @map("workflow_id") @db.Uuid
+  versionId   String            @map("version_id") @db.Uuid
   status      WorkflowRunStatus @default(PENDING)
-  input       Json?            @db.JsonB
-  output      Json?            @db.JsonB
-  error       Json?            @db.JsonB
-  revision    Int              @default(1)
-  startedAt   DateTime?        @map("started_at") @db.Timestamptz()
-  completedAt DateTime?        @map("completed_at") @db.Timestamptz()
-  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamptz()
+  input       Json?             @db.JsonB
+  output      Json?             @db.JsonB
+  error       Json?             @db.JsonB
+  revision    Int               @default(1)
+  startedAt   DateTime?         @map("started_at") @db.Timestamptz()
+  completedAt DateTime?         @map("completed_at") @db.Timestamptz()
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz()
 
   tenant   Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  workflow Workflow        @relation(
-    fields: [workflowId, tenantId],
-    references: [id, tenantId],
-    onDelete: Restrict
-  )
-  version  WorkflowVersion @relation(
-    fields: [versionId, workflowId],
-    references: [id, workflowId],
-    onDelete: Restrict
-  )
+  workflow Workflow        @relation(fields: [workflowId, tenantId], references: [id, tenantId], onDelete: Restrict)
+  version  WorkflowVersion @relation(fields: [versionId, workflowId], references: [id, workflowId], onDelete: Restrict)
 
   steps  WorkflowStep[]
   events WorkflowEvent[]
@@ -192,19 +183,19 @@ model WorkflowEvent {
 // ─── 7. Jobs ─────────────────────────────────────────────────────────
 
 model Job {
-  id             String    @id @default(uuid()) @db.Uuid
-  tenantId       String    @map("tenant_id") @db.Uuid
-  queue          String    @db.VarChar(255)
-  type           String    @db.VarChar(255)
-  payload        Json      @db.JsonB
-  status         JobStatus @default(PENDING)
-  priority       Int       @default(0)
-  maxRetries     Int       @default(3) @map("max_retries")
-  retryCount     Int       @default(0) @map("retry_count")
-  scheduledAt    DateTime  @default(now()) @map("scheduled_at") @db.Timestamptz()
-  startedAt      DateTime? @map("started_at") @db.Timestamptz()
-  completedAt    DateTime? @map("completed_at") @db.Timestamptz()
-  error          Json?     @db.JsonB
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  queue       String    @db.VarChar(255)
+  type        String    @db.VarChar(255)
+  payload     Json      @db.JsonB
+  status      JobStatus @default(PENDING)
+  priority    Int       @default(0)
+  maxRetries  Int       @default(3) @map("max_retries")
+  retryCount  Int       @default(0) @map("retry_count")
+  scheduledAt DateTime  @default(now()) @map("scheduled_at") @db.Timestamptz()
+  startedAt   DateTime? @map("started_at") @db.Timestamptz()
+  completedAt DateTime? @map("completed_at") @db.Timestamptz()
+  error       Json?     @db.JsonB
 
   leaseOwner     String?   @map("lease_owner") @db.Uuid
   leaseExpiresAt DateTime? @map("lease_expires_at") @db.Timestamptz()

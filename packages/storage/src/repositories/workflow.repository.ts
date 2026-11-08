@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { PrismaClient } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import type {
   TransactionClient,
   IWorkflowRepository,
@@ -51,7 +51,7 @@ export class PrismaWorkflowRepository implements IWorkflowRepository {
     tx?: TransactionClient
   ): Promise<WorkflowRecord | null> {
     return this.db(tx).workflow.findFirst({
-      where: { id, tenantId },
+      where: { id, tenantId, deletedAt: null },
     });
   }
 
@@ -61,7 +61,7 @@ export class PrismaWorkflowRepository implements IWorkflowRepository {
     tx?: TransactionClient
   ): Promise<WorkflowRecord | null> {
     return this.db(tx).workflow.findFirst({
-      where: { tenantId, key },
+      where: { tenantId, key, deletedAt: null },
     });
   }
 
@@ -71,19 +71,18 @@ export class PrismaWorkflowRepository implements IWorkflowRepository {
     input: UpdateWorkflowInput,
     tx?: TransactionClient
   ): Promise<WorkflowRecord> {
-    // Verify tenant scoping
-    const existing = await this.db(tx).workflow.findFirst({
-      where: { id, tenantId },
-    });
-    if (!existing) {
-      throw new NotFoundError("Workflow", id);
-    }
-    return this.db(tx).workflow.update({
-      where: { id },
+    const result = await this.db(tx).workflow.updateMany({
+      where: { id, tenantId, deletedAt: null },
       data: {
         ...(input.name !== undefined && { name: input.name }),
         ...(input.metadata !== undefined && { metadata: input.metadata ?? Prisma.JsonNull }),
       },
+    });
+    if (result.count === 0) {
+      throw new NotFoundError("Workflow", id);
+    }
+    return this.db(tx).workflow.findFirstOrThrow({
+      where: { id, tenantId, deletedAt: null },
     });
   }
 
@@ -92,13 +91,13 @@ export class PrismaWorkflowRepository implements IWorkflowRepository {
     id: string,
     tx?: TransactionClient
   ): Promise<void> {
-    const existing = await this.db(tx).workflow.findFirst({
-      where: { id, tenantId },
+    const result = await this.db(tx).workflow.updateMany({
+      where: { id, tenantId, deletedAt: null },
+      data: { deletedAt: new Date() },
     });
-    if (!existing) {
+    if (result.count === 0) {
       throw new NotFoundError("Workflow", id);
     }
-    await this.db(tx).workflow.delete({ where: { id } });
   }
 
   async list(
@@ -108,12 +107,12 @@ export class PrismaWorkflowRepository implements IWorkflowRepository {
   ): Promise<PaginatedResult<WorkflowRecord>> {
     const [data, total] = await Promise.all([
       this.db(tx).workflow.findMany({
-        where: { tenantId },
+        where: { tenantId, deletedAt: null },
         skip: pagination.offset,
         take: pagination.limit,
         orderBy: { createdAt: "desc" },
       }),
-      this.db(tx).workflow.count({ where: { tenantId } }),
+      this.db(tx).workflow.count({ where: { tenantId, deletedAt: null } }),
     ]);
     return { data, total, limit: pagination.limit, offset: pagination.offset };
   }

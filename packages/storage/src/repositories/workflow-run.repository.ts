@@ -1,5 +1,5 @@
-import type { PrismaClient } from "@prisma/client";
-import { Prisma } from "@prisma/client";
+import type { PrismaClient } from "../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client";
 import type {
   TransactionClient,
   IWorkflowRunRepository,
@@ -23,16 +23,24 @@ export class PrismaWorkflowRunRepository implements IWorkflowRunRepository {
     input: CreateWorkflowRunInput,
     tx?: TransactionClient
   ): Promise<WorkflowRunRecord> {
-    return this.db(tx).workflowRun.create({
+    if (!tx) {
+      return this.client.$transaction((transaction) =>
+        this.create(input, transaction)
+      );
+    }
+
+    const run = await tx.workflowRun.create({
       data: {
         tenantId: input.tenantId,
         workflowId: input.workflowId,
         versionId: input.versionId,
-        status: "pending",
+        status: "PENDING",
         input: input.input ?? Prisma.JsonNull,
         revision: 1,
       },
     });
+    await this.createOutboxEvent(run, "workflow_run.created", tx);
+    return run;
   }
 
   async findById(
@@ -52,6 +60,12 @@ export class PrismaWorkflowRunRepository implements IWorkflowRunRepository {
     expectedRevision: number,
     tx?: TransactionClient
   ): Promise<WorkflowRunRecord> {
+    if (!tx) {
+      return this.client.$transaction((transaction) =>
+        this.update(tenantId, id, input, expectedRevision, transaction)
+      );
+    }
+
     // Optimistic concurrency: update only if revision matches
     const result = await this.db(tx).workflowRun.updateMany({
       where: { id, tenantId, revision: expectedRevision },
@@ -61,7 +75,7 @@ export class PrismaWorkflowRunRepository implements IWorkflowRunRepository {
         ...(input.error !== undefined && { error: input.error ?? Prisma.JsonNull }),
         ...(input.startedAt !== undefined && { startedAt: input.startedAt }),
         ...(input.completedAt !== undefined && { completedAt: input.completedAt }),
-        revision: expectedRevision + 1,
+        revision: { increment: 1 },
       },
     });
 
@@ -80,7 +94,37 @@ export class PrismaWorkflowRunRepository implements IWorkflowRunRepository {
     const updated = await this.db(tx).workflowRun.findFirst({
       where: { id, tenantId },
     });
-    return updated!;
+    if (!updated) {
+      throw new NotFoundError("WorkflowRun", id);
+    }
+    await this.createOutboxEvent(
+      updated,
+      input.status === undefined
+        ? "workflow_run.updated"
+        : "workflow_run.status_changed",
+      tx
+    );
+    return updated;
+  }
+
+  private async createOutboxEvent(
+    run: WorkflowRunRecord,
+    eventType: string,
+    tx: TransactionClient
+  ): Promise<void> {
+    await tx.outboxEvent.create({
+      data: {
+        tenantId: run.tenantId,
+        aggregateType: "workflow_run",
+        aggregateId: run.id,
+        eventType,
+        payload: {
+          runId: run.id,
+          status: run.status,
+          revision: run.revision,
+        },
+      },
+    });
   }
 
   async list(

@@ -1,4 +1,10 @@
-import type { PrismaClient, Prisma } from "@prisma/client";
+import type { PrismaClient, Prisma } from "../generated/prisma/client";
+import type {
+  JobStatus,
+  WorkerStatus,
+  WorkflowRunStatus,
+  WorkflowStepStatus,
+} from "../generated/prisma/enums";
 
 // ─── Common Types ─────────────────────────────────────────────────────
 
@@ -125,7 +131,7 @@ export interface CreateWorkflowRunInput {
 }
 
 export interface UpdateWorkflowRunInput {
-  readonly status?: string;
+  readonly status?: WorkflowRunStatus;
   readonly output?: Json;
   readonly error?: Json;
   readonly startedAt?: Date;
@@ -137,7 +143,7 @@ export interface WorkflowRunRecord {
   readonly tenantId: string;
   readonly workflowId: string;
   readonly versionId: string;
-  readonly status: string;
+  readonly status: WorkflowRunStatus;
   readonly input: unknown;
   readonly output: unknown;
   readonly error: unknown;
@@ -149,7 +155,7 @@ export interface WorkflowRunRecord {
 }
 
 export interface ListRunsFilter {
-  readonly status?: string;
+  readonly status?: WorkflowRunStatus;
   readonly workflowId?: string;
 }
 
@@ -186,7 +192,7 @@ export interface CreateWorkflowStepInput {
 }
 
 export interface UpdateWorkflowStepInput {
-  readonly status?: string;
+  readonly status?: WorkflowStepStatus;
   readonly output?: Json;
   readonly error?: Json;
   readonly attempt?: number;
@@ -199,7 +205,7 @@ export interface WorkflowStepRecord {
   readonly runId: string;
   readonly stepKey: string;
   readonly type: string;
-  readonly status: string;
+  readonly status: WorkflowStepStatus;
   readonly input: unknown;
   readonly output: unknown;
   readonly error: unknown;
@@ -224,7 +230,6 @@ export interface CreateWorkflowEventInput {
   readonly runId: string;
   readonly type: string;
   readonly payload?: Json;
-  readonly sequence: number;
 }
 
 export interface WorkflowEventRecord {
@@ -255,11 +260,12 @@ export interface CreateJobInput {
 }
 
 export interface UpdateJobInput {
-  readonly status?: string;
+  readonly status?: JobStatus;
   readonly error?: Json;
   readonly retryCount?: number;
   readonly startedAt?: Date;
   readonly completedAt?: Date;
+  readonly expectedFencingToken?: bigint;
 }
 
 export interface JobRecord {
@@ -268,7 +274,7 @@ export interface JobRecord {
   readonly queue: string;
   readonly type: string;
   readonly payload: unknown;
-  readonly status: string;
+  readonly status: JobStatus;
   readonly priority: number;
   readonly maxRetries: number;
   readonly retryCount: number;
@@ -276,6 +282,10 @@ export interface JobRecord {
   readonly startedAt: Date | null;
   readonly completedAt: Date | null;
   readonly error: unknown;
+  readonly leaseOwner: string | null;
+  readonly leaseExpiresAt: Date | null;
+  readonly fencingToken: bigint;
+  readonly claimedAt: Date | null;
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
@@ -285,10 +295,16 @@ export interface IJobRepository {
   findById(tenantId: string, id: string, tx?: TransactionClient): Promise<JobRecord | null>;
   update(tenantId: string, id: string, input: UpdateJobInput, tx?: TransactionClient): Promise<JobRecord>;
   /**
-   * Dequeues the next available job from the given queues.
-   * Atomically sets the job status to "processing".
+   * Claims the next available job and assigns a lease and fencing token.
    */
-  dequeue(tenantId: string, queues: string[], tx?: TransactionClient): Promise<JobRecord | null>;
+  dequeue(
+    tenantId: string,
+    queues: string[],
+    workerId: string,
+    leaseDurationMs?: number,
+    tx?: TransactionClient
+  ): Promise<JobRecord | null>;
+  recoverExpiredLeases(tx?: TransactionClient): Promise<number>;
   listByQueue(tenantId: string, queue: string, pagination: PaginationParams, tx?: TransactionClient): Promise<PaginatedResult<JobRecord>>;
 }
 
@@ -306,7 +322,7 @@ export interface WorkerRecord {
   readonly tenantId: string;
   readonly name: string;
   readonly queues: string[];
-  readonly status: string;
+  readonly status: WorkerStatus;
   readonly lastHeartbeat: Date | null;
   readonly metadata: unknown;
   readonly createdAt: Date;
