@@ -70,8 +70,8 @@ export interface CreateWorkflowInput {
 }
 
 export interface UpdateWorkflowInput {
-  readonly name?: string;
-  readonly metadata?: Json;
+  readonly name?: string | undefined;
+  readonly metadata?: Json | undefined;
 }
 
 export interface WorkflowRecord {
@@ -130,14 +130,15 @@ export interface CreateWorkflowRunInput {
   readonly workflowId: string;
   readonly versionId: string;
   readonly input?: Json;
+  readonly idempotencyKey?: string | null;
 }
 
 export interface UpdateWorkflowRunInput {
-  readonly status?: WorkflowRunStatus;
-  readonly output?: Json;
-  readonly error?: Json;
-  readonly startedAt?: Date;
-  readonly completedAt?: Date;
+  readonly status?: WorkflowRunStatus | undefined;
+  readonly output?: Json | undefined;
+  readonly error?: Json | undefined;
+  readonly startedAt?: Date | undefined;
+  readonly completedAt?: Date | undefined;
 }
 
 export interface WorkflowRunRecord {
@@ -150,6 +151,7 @@ export interface WorkflowRunRecord {
   readonly output: unknown;
   readonly error: unknown;
   readonly revision: number;
+  readonly idempotencyKey: string | null;
   readonly startedAt: Date | null;
   readonly completedAt: Date | null;
   readonly createdAt: Date;
@@ -157,13 +159,16 @@ export interface WorkflowRunRecord {
 }
 
 export interface ListRunsFilter {
-  readonly status?: WorkflowRunStatus;
-  readonly workflowId?: string;
+  readonly status?: WorkflowRunStatus | undefined;
+  readonly workflowId?: string | undefined;
+  readonly from?: Date | undefined;
+  readonly to?: Date | undefined;
 }
 
 export interface IWorkflowRunRepository {
   create(input: CreateWorkflowRunInput, tx?: TransactionClient): Promise<WorkflowRunRecord>;
   findById(tenantId: string, id: string, tx?: TransactionClient): Promise<WorkflowRunRecord | null>;
+  findByIdempotencyKey(tenantId: string, idempotencyKey: string, tx?: TransactionClient): Promise<WorkflowRunRecord | null>;
   /**
    * Updates a workflow run with optimistic concurrency control.
    * @param expectedRevision - The revision the caller expects the row to have.
@@ -429,4 +434,35 @@ export interface IScheduleRepository {
     pagination: PaginationParams,
     tx?: TransactionClient
   ): Promise<PaginatedResult<WorkflowScheduleRecord>>;
+}
+
+// ─── API Key Repository ─────────────────────────────────────────────
+
+export interface CreateApiKeyInput {
+  readonly tenantId: string;
+  readonly name: string;
+  readonly keyHash: string;
+  readonly keyPrefix: string;
+  readonly expiresAt?: Date | null;
+}
+
+export interface ApiKeyRecord {
+  readonly id: string;
+  readonly tenantId: string;
+  readonly name: string;
+  readonly keyHash: string;
+  readonly keyPrefix: string;
+  readonly revokedAt: Date | null;
+  readonly expiresAt: Date | null;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+}
+
+export interface IApiKeyRepository {
+  create(input: CreateApiKeyInput, tx?: TransactionClient): Promise<ApiKeyRecord>;
+  findById(tenantId: string, id: string, tx?: TransactionClient): Promise<ApiKeyRecord | null>;
+  findByKeyHash(keyHash: string, tx?: TransactionClient): Promise<ApiKeyRecord | null>;
+  revoke(tenantId: string, id: string, tx?: TransactionClient): Promise<ApiKeyRecord>;
+  listByTenant(tenantId: string, tx?: TransactionClient): Promise<readonly ApiKeyRecord[]>;
+  delete(tenantId: string, id: string, tx?: TransactionClient): Promise<void>;
 }

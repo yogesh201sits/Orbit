@@ -51,6 +51,10 @@ export type {
   UpdateWorkflowScheduleInput,
   WorkflowScheduleRecord,
   IScheduleRepository,
+  // ApiKey
+  CreateApiKeyInput,
+  ApiKeyRecord,
+  IApiKeyRepository,
 } from "./interfaces";
 
 // ─── Implementations ─────────────────────────────────────────────────
@@ -64,6 +68,7 @@ export { PrismaJobRepository } from "./job.repository";
 export { PrismaWorkerRepository } from "./worker.repository";
 export { PrismaOutboxRepository } from "./outbox.repository";
 export { PrismaScheduleRepository } from "./schedule.repository";
+export { PrismaApiKeyRepository } from "./api-key.repository";
 
 // ─── Transaction ─────────────────────────────────────────────────────
 export { withTransaction } from "./transaction";
