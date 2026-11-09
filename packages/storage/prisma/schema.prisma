@@ -81,6 +81,7 @@ model Tenant {
   workers      Worker[]
   outboxEvents OutboxEvent[]
   schedules    WorkflowSchedule[]
+  apiKeys      ApiKey[]
 
   @@map("tenants")
 }
@@ -140,8 +141,9 @@ model WorkflowRun {
   input       Json?             @db.JsonB
   output      Json?             @db.JsonB
   error       Json?             @db.JsonB
-  revision    Int               @default(1)
-  startedAt   DateTime?         @map("started_at") @db.Timestamptz()
+  revision       Int               @default(1)
+  idempotencyKey String?           @map("idempotency_key") @db.VarChar(255)
+  startedAt      DateTime?         @map("started_at") @db.Timestamptz()
   completedAt DateTime?         @map("completed_at") @db.Timestamptz()
   createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz()
@@ -153,6 +155,7 @@ model WorkflowRun {
   steps  WorkflowStep[]
   events WorkflowEvent[]
 
+  @@unique([tenantId, idempotencyKey], name: "uq_tenant_run_idempotency")
   @@index([tenantId, status, createdAt], name: "idx_run_tenant_status_created")
   @@index([workflowId], name: "idx_run_workflow")
   @@map("workflow_runs")
@@ -298,4 +301,23 @@ model WorkflowSchedule {
   @@index([status, nextRunAt], name: "idx_schedule_status_next")
   @@index([status, leaseExpiresAt], name: "idx_schedule_lease_expiry")
   @@map("workflow_schedules")
+}
+
+// ─── 11. API Keys ───────────────────────────────────────────────────
+
+model ApiKey {
+  id        String    @id @default(uuid()) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  name      String    @db.VarChar(255)
+  keyHash   String    @unique @map("key_hash") @db.VarChar(64)
+  keyPrefix String    @map("key_prefix") @db.VarChar(16)
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz()
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz()
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId], name: "idx_api_key_tenant")
+  @@map("api_keys")
 }

@@ -37,6 +37,7 @@ export class PrismaWorkflowRunRepository implements IWorkflowRunRepository {
         status: "PENDING",
         input: input.input ?? Prisma.JsonNull,
         revision: 1,
+        idempotencyKey: input.idempotencyKey ?? null,
       },
     });
     await this.createOutboxEvent(run, "workflow_run.created", tx);
@@ -50,6 +51,16 @@ export class PrismaWorkflowRunRepository implements IWorkflowRunRepository {
   ): Promise<WorkflowRunRecord | null> {
     return this.db(tx).workflowRun.findFirst({
       where: { id, tenantId },
+    });
+  }
+
+  async findByIdempotencyKey(
+    tenantId: string,
+    idempotencyKey: string,
+    tx?: TransactionClient
+  ): Promise<WorkflowRunRecord | null> {
+    return this.db(tx).workflowRun.findFirst({
+      where: { tenantId, idempotencyKey },
     });
   }
 
@@ -137,6 +148,12 @@ export class PrismaWorkflowRunRepository implements IWorkflowRunRepository {
       tenantId,
       ...(filter.status && { status: filter.status }),
       ...(filter.workflowId && { workflowId: filter.workflowId }),
+      ...((filter.from || filter.to) && {
+        createdAt: {
+          ...(filter.from && { gte: filter.from }),
+          ...(filter.to && { lte: filter.to }),
+        },
+      }),
     };
     const [data, total] = await Promise.all([
       this.db(tx).workflowRun.findMany({
