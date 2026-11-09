@@ -9,6 +9,22 @@
         "typescript": "latest",
       },
     },
+    "packages/api": {
+      "name": "@durable/api",
+      "version": "0.1.0",
+      "dependencies": {
+        "@durable/engine": "workspace:*",
+        "@durable/scheduler": "workspace:*",
+        "@durable/shared": "workspace:*",
+        "@durable/storage": "workspace:*",
+        "hono": "^4.7.2",
+        "zod": "^3.24.2",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "latest",
+      },
+    },
     "packages/engine": {
       "name": "@durable/engine",
       "version": "0.1.0",
@@ -55,8 +71,23 @@
         "prisma": "*",
       },
     },
+    "packages/worker": {
+      "name": "@durable/worker",
+      "version": "0.1.0",
+      "dependencies": {
+        "@durable/engine": "workspace:*",
+        "@durable/shared": "workspace:*",
+        "@durable/storage": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+        "typescript": "latest",
+      },
+    },
   },
   "packages": {
+    "@durable/api": ["@durable/api@workspace:packages/api"],
+
     "@durable/engine": ["@durable/engine@workspace:packages/engine"],
 
     "@durable/scheduler": ["@durable/scheduler@workspace:packages/scheduler"],
@@ -64,6 +95,8 @@
     "@durable/shared": ["@durable/shared@workspace:packages/shared"],
 
     "@durable/storage": ["@durable/storage@workspace:packages/storage"],
+
+    "@durable/worker": ["@durable/worker@workspace:packages/worker"],
 
     "@electric-sql/pglite": ["@electric-sql/pglite@0.4.3", "", {}, "sha512-ichuWTgtd4mOM1G4SpyGJa5trT03lWbMypDV0fUXUCXg5hiHqVAz/bZyV68NqmkLB7WcYmj1RMJVSp8HV/v/ZQ=="],
 
@@ -298,6 +331,8 @@
     "grammex": ["grammex@3.1.13", "", {}, "sha512-LnPnhOBLEJEVKS8WFDVaA397L9Kq55Q9oSITJiVLHVdhAclfUkWzQv74KhvZHKL2Q09Pb1XdsrOsZ4LfTFFTEg=="],
 
     "graphmatch": ["graphmatch@1.1.1", "", {}, "sha512-5ykVn/EXM1hF0XCaWh05VbYvEiOL2lY1kBxZtaYsyvjp7cmWOU1XsAdfQBwClraEofXDT197lFbXOEVMHpvQOg=="],
+
+    "hono": ["hono@4.13.17", "", {}, "sha512-vZIcbkvjOR5hHRWERbGkr8fGfF0GGM1ooYkuH448iO3b2AdVEr3AXZSw4Z3Kn+1L5z0CVoVeyV29VGYmFh05kQ=="],
 
     "iconv-lite": ["iconv-lite@0.7.3", "", { "dependencies": { "safer-buffer": ">= 2.1.2 < 3.0.0" } }, "sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ=="],
 

@@ -43,6 +43,7 @@ export class InMemoryWorkflowRunRepository implements IWorkflowRunRepository {
       output: null,
       error: null,
       revision: 1,
+      idempotencyKey: input.idempotencyKey ?? null,
       startedAt: null,
       completedAt: null,
       createdAt: now,
@@ -54,6 +55,18 @@ export class InMemoryWorkflowRunRepository implements IWorkflowRunRepository {
 
   async findById(tenantId: string, id: string): Promise<WorkflowRunRecord | null> {
     return this.runs.get(`${tenantId}:${id}`) ?? null;
+  }
+
+  async findByIdempotencyKey(
+    tenantId: string,
+    idempotencyKey: string
+  ): Promise<WorkflowRunRecord | null> {
+    for (const run of this.runs.values()) {
+      if (run.tenantId === tenantId && run.idempotencyKey === idempotencyKey) {
+        return run;
+      }
+    }
+    return null;
   }
 
   async update(

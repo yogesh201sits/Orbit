@@ -23,7 +23,9 @@
       "@durable/scheduler": ["./packages/scheduler/src/index.ts"],
       "@durable/scheduler/*": ["./packages/scheduler/src/*"],
       "@durable/worker": ["./packages/worker/src/index.ts"],
-      "@durable/worker/*": ["./packages/worker/src/*"]
+      "@durable/worker/*": ["./packages/worker/src/*"],
+      "@durable/api": ["./packages/api/src/index.ts"],
+      "@durable/api/*": ["./packages/api/src/*"]
     }
   },
   "include": [

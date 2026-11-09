@@ -70,8 +70,8 @@ export interface CreateWorkflowInput {
 }
 
 export interface UpdateWorkflowInput {
-  readonly name?: string;
-  readonly metadata?: Json;
+  readonly name?: string | undefined;
+  readonly metadata?: Json | undefined;
 }
 
 export interface WorkflowRecord {
@@ -134,11 +134,11 @@ export interface CreateWorkflowRunInput {
 }
 
 export interface UpdateWorkflowRunInput {
-  readonly status?: WorkflowRunStatus;
-  readonly output?: Json;
-  readonly error?: Json;
-  readonly startedAt?: Date;
-  readonly completedAt?: Date;
+  readonly status?: WorkflowRunStatus | undefined;
+  readonly output?: Json | undefined;
+  readonly error?: Json | undefined;
+  readonly startedAt?: Date | undefined;
+  readonly completedAt?: Date | undefined;
 }
 
 export interface WorkflowRunRecord {
@@ -159,10 +159,10 @@ export interface WorkflowRunRecord {
 }
 
 export interface ListRunsFilter {
-  readonly status?: WorkflowRunStatus;
-  readonly workflowId?: string;
-  readonly from?: Date;
-  readonly to?: Date;
+  readonly status?: WorkflowRunStatus | undefined;
+  readonly workflowId?: string | undefined;
+  readonly from?: Date | undefined;
+  readonly to?: Date | undefined;
 }
 
 export interface IWorkflowRunRepository {
