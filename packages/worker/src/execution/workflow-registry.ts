@@ -6,23 +6,36 @@ export class WorkflowRegistry {
   private readonly handlers = new Map<string, JobHandler>();
 
   /**
-   * Registers a workflow definition by its name.
+   * Registers a workflow definition by its name and optional version.
    */
-  registerWorkflow(workflow: WorkflowDefinition<any, any>): void {
+  registerWorkflow(workflow: WorkflowDefinition<any, any>, version?: number): void {
+    const v = version ?? workflow.version;
+    if (v !== undefined) {
+      this.workflows.set(`${workflow.name}:${v}`, workflow);
+    }
     this.workflows.set(workflow.name, workflow);
   }
 
   /**
-   * Retrieves a registered workflow definition by name or key.
+   * Retrieves a registered workflow definition by name or key, optionally matching a specific version.
    */
-  getWorkflow(name: string): WorkflowDefinition<any, any> | undefined {
+  getWorkflow(name: string, version?: number): WorkflowDefinition<any, any> | undefined {
+    if (version !== undefined) {
+      const versioned = this.workflows.get(`${name}:${version}`);
+      if (versioned) {
+        return versioned;
+      }
+    }
     return this.workflows.get(name);
   }
 
   /**
    * Checks if a workflow is registered.
    */
-  hasWorkflow(name: string): boolean {
+  hasWorkflow(name: string, version?: number): boolean {
+    if (version !== undefined) {
+      return this.workflows.has(`${name}:${version}`) || this.workflows.has(name);
+    }
     return this.workflows.has(name);
   }
 

@@ -34,21 +34,42 @@ export const workflowDefinitionSchema = z
     metadata: z.record(z.unknown()).optional(),
     steps: z
       .array(stepDefinitionSchema)
-      .min(1, "Workflow must contain at least one step"),
+      .optional(),
+    handler: z.function().optional(),
   })
   .superRefine((val, ctx) => {
-    const seenIds = new Set<string>();
-    for (let i = 0; i < val.steps.length; i++) {
-      const step = val.steps[i];
-      if (!step) continue;
-      if (seenIds.has(step.id)) {
+    if (!val.steps && !val.handler) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Workflow "${val.name}" must specify either 'steps' or a 'handler' function`,
+        path: ["steps"],
+      });
+      return;
+    }
+
+    if (val.steps) {
+      if (val.steps.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: `Duplicate step id "${step.id}" detected in workflow "${val.name}"`,
-          path: ["steps", i, "id"],
+          message: `Workflow "${val.name}" steps array cannot be empty`,
+          path: ["steps"],
         });
-      } else {
-        seenIds.add(step.id);
+        return;
+      }
+
+      const seenIds = new Set<string>();
+      for (let i = 0; i < val.steps.length; i++) {
+        const step = val.steps[i];
+        if (!step) continue;
+        if (seenIds.has(step.id)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Duplicate step id "${step.id}" detected in workflow "${val.name}"`,
+            path: ["steps", i, "id"],
+          });
+        } else {
+          seenIds.add(step.id);
+        }
       }
     }
   });

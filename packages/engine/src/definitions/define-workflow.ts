@@ -23,6 +23,6 @@ export function defineWorkflow<
 
   return Object.freeze({
     ...definition,
-    steps: Object.freeze([...definition.steps]) as unknown as TSteps,
+    ...(definition.steps ? { steps: Object.freeze([...definition.steps]) as unknown as TSteps } : {}),
   });
 }
