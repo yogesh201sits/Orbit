@@ -181,13 +181,22 @@ export class JobExecutor {
       }
     }
 
+    // Resolve target version number if versionId is present
+    let targetVersionNumber: number | undefined = undefined;
+    if (versionId && this.versionRepo) {
+      const ver = await this.versionRepo.findById(versionId);
+      if (ver) {
+        targetVersionNumber = ver.version;
+      }
+    }
+
     // Try finding workflow definition in registry
     let workflowDef: WorkflowDefinition<any, any> | undefined;
     if (workflowKey) {
-      workflowDef = this.registry.getWorkflow(workflowKey);
+      workflowDef = this.registry.getWorkflow(workflowKey, targetVersionNumber);
     }
     if (!workflowDef && workflowId) {
-      workflowDef = this.registry.getWorkflow(workflowId);
+      workflowDef = this.registry.getWorkflow(workflowId, targetVersionNumber);
     }
 
     if (!workflowDef) {

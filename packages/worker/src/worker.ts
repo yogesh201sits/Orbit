@@ -157,8 +157,8 @@ export class Worker {
   /**
    * Registers a workflow definition.
    */
-  registerWorkflow(workflow: WorkflowDefinition<any, any>): void {
-    this.registry.registerWorkflow(workflow);
+  registerWorkflow(workflow: WorkflowDefinition<any, any>, version?: number): void {
+    this.registry.registerWorkflow(workflow, version);
   }
 
   /**

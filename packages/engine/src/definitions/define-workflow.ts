@@ -8,7 +8,17 @@ export function defineWorkflow<
     TWorkflowInput,
     any
   >[]
->(definition: WorkflowDefinition<TWorkflowInput, TSteps>): WorkflowDefinition<TWorkflowInput, TSteps> {
+>(
+  definition: WorkflowDefinition<TWorkflowInput, TSteps> & { steps: TSteps }
+): WorkflowDefinition<TWorkflowInput, TSteps> & { steps: TSteps };
+export function defineWorkflow<
+  TWorkflowInput = any,
+  const TSteps extends readonly StepDefinition<TWorkflowInput, any>[] = readonly StepDefinition<
+    TWorkflowInput,
+    any
+  >[]
+>(definition: WorkflowDefinition<TWorkflowInput, TSteps>): WorkflowDefinition<TWorkflowInput, TSteps>;
+export function defineWorkflow(definition: any): any {
   const result = workflowDefinitionSchema.safeParse(definition);
 
   if (!result.success) {
@@ -23,6 +33,6 @@ export function defineWorkflow<
 
   return Object.freeze({
     ...definition,
-    steps: Object.freeze([...definition.steps]) as unknown as TSteps,
+    ...(definition.steps ? { steps: Object.freeze([...definition.steps]) } : {}),
   });
 }

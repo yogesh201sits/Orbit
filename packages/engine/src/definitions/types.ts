@@ -51,6 +51,41 @@ export interface StepDefinition<TWorkflowInput = any, TOutput = any> {
   readonly execute: (ctx: StepContext<TWorkflowInput>) => Promise<TOutput> | TOutput;
 }
 
+export interface DynamicStepOptions {
+  readonly retries?: number | undefined;
+  readonly retry?: Partial<RetryPolicy> | undefined;
+  readonly timeoutMs?: number | undefined;
+  readonly timeout?: number | string | undefined;
+  readonly type?: string | undefined;
+  readonly metadata?: Record<string, unknown> | undefined;
+}
+
+export interface DynamicStepContext {
+  run<T>(
+    stepId: string,
+    callback: () => Promise<T> | T,
+    options?: DynamicStepOptions | undefined
+  ): Promise<T>;
+}
+
+export interface WorkflowExecutionContextInfo {
+  readonly tenantId: string;
+  readonly workflowId: string;
+  readonly runId: string;
+  readonly signal: AbortSignal;
+  readonly logger: StructuredLogger;
+}
+
+export interface WorkflowHandlerContext<TWorkflowInput = any> {
+  readonly input: TWorkflowInput;
+  readonly step: DynamicStepContext;
+  readonly context: WorkflowExecutionContextInfo;
+}
+
+export type WorkflowHandler<TWorkflowInput = any, TOutput = any> = (
+  ctx: WorkflowHandlerContext<TWorkflowInput>
+) => Promise<TOutput>;
+
 export interface WorkflowDefinition<
   TWorkflowInput = any,
   TSteps extends readonly StepDefinition<any, any>[] = readonly StepDefinition<any, any>[]
@@ -59,5 +94,6 @@ export interface WorkflowDefinition<
   readonly version: number;
   readonly description?: string | undefined;
   readonly metadata?: Record<string, unknown> | undefined;
-  readonly steps: TSteps;
+  readonly steps?: TSteps | undefined;
+  readonly handler?: WorkflowHandler<TWorkflowInput, any> | undefined;
 }

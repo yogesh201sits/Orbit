@@ -5,7 +5,13 @@ import type {
   WorkflowRunRecord,
   Json,
 } from "@durable/storage";
-import type { WorkflowDefinition } from "../definitions/types";
+import type {
+  WorkflowDefinition,
+  StepDefinition,
+  DynamicStepContext,
+  DynamicStepOptions,
+  WorkflowExecutionContextInfo,
+} from "../definitions/types";
 import { StepExecutor, serializeError } from "./step-executor";
 import { RecoveryManager } from "../recovery/recovery-manager";
 import { DefaultStructuredLogger, type LogSink } from "../context/logger";
@@ -40,6 +46,21 @@ export interface WorkflowExecutionResult {
   readonly status: "COMPLETED" | "FAILED" | "CANCELLED";
   readonly output?: unknown;
   readonly error?: unknown;
+}
+
+function parseDurationMs(d: string | number): number {
+  if (typeof d === "number") return d;
+  const match = /^(\d+(?:\.\d+)?)\s*(ms|s|m|h|d)?$/i.exec(d.trim());
+  if (!match) return Number(d) || 0;
+  const val = parseFloat(match[1]!);
+  const unit = (match[2] ?? "ms").toLowerCase();
+  switch (unit) {
+    case "d": return val * 86_400_000;
+    case "h": return val * 3_600_000;
+    case "m": return val * 60_000;
+    case "s": return val * 1_000;
+    case "ms": default: return val;
+  }
 }
 
 export class ExecutionEngine {
@@ -215,7 +236,7 @@ export class ExecutionEngine {
       let previousStepId: string | undefined = undefined;
 
       // Find last completed step if resuming
-      if (initialOutputs && initialOutputs.size > 0) {
+      if (initialOutputs && initialOutputs.size > 0 && workflow.steps) {
         for (const step of workflow.steps) {
           if (stepOutputs.has(step.id)) {
             previousStepId = step.id;
@@ -225,29 +246,94 @@ export class ExecutionEngine {
 
       let lastStepOutput: unknown = undefined;
 
-      // Execute each step sequentially
-      for (const step of workflow.steps) {
-        if (controller.signal.aborted) {
-          throw new WorkflowCancelledError(runId, step.id);
-        }
+      if (typeof workflow.handler === "function") {
+        const dynamicStep: DynamicStepContext = {
+          run: async <T>(
+            stepId: string,
+            callback: () => Promise<T> | T,
+            options?: DynamicStepOptions
+          ): Promise<T> => {
+            if (controller.signal.aborted) {
+              throw new WorkflowCancelledError(runId, stepId);
+            }
 
-        const result = await this.stepExecutor.executeStep({
+            let timeoutMs = options?.timeoutMs;
+            if (timeoutMs === undefined && options?.timeout !== undefined) {
+              timeoutMs = parseDurationMs(options.timeout);
+            }
+
+            let retryPolicy = options?.retry;
+            if (!retryPolicy && options?.retries !== undefined) {
+              retryPolicy = { maxAttempts: options.retries + 1 };
+            }
+
+            const dynamicStepDef: StepDefinition<TWorkflowInput, T> = {
+              id: stepId,
+              type: options?.type ?? "action",
+              retry: retryPolicy,
+              timeoutMs,
+              metadata: options?.metadata,
+              execute: async () => callback(),
+            };
+
+            const result = await this.stepExecutor.executeStep({
+              tenantId,
+              workflowId,
+              runId,
+              step: dynamicStepDef,
+              stepOutputs,
+              workflowInput: workflowInput as TWorkflowInput,
+              previousStepId,
+              cancellationSignal: controller.signal,
+              stepRepo: this.stepRepo,
+              eventRepo: this.eventRepo,
+              logger: logger.child({ stepId, attempt: 1 }),
+            });
+
+            stepOutputs.set(stepId, result.output);
+            previousStepId = stepId;
+            return result.output as T;
+          },
+        };
+
+        const executionInfo: WorkflowExecutionContextInfo = {
           tenantId,
           workflowId,
           runId,
-          step,
-          stepOutputs,
-          workflowInput: workflowInput as TWorkflowInput,
-          previousStepId,
-          cancellationSignal: controller.signal,
-          stepRepo: this.stepRepo,
-          eventRepo: this.eventRepo,
-          logger: logger.child({ stepId: step.id, attempt: 1 }),
-        });
+          signal: controller.signal,
+          logger,
+        };
 
-        stepOutputs.set(step.id, result.output);
-        previousStepId = step.id;
-        lastStepOutput = result.output;
+        lastStepOutput = await workflow.handler({
+          input: workflowInput as TWorkflowInput,
+          step: dynamicStep,
+          context: executionInfo,
+        });
+      } else if (workflow.steps && workflow.steps.length > 0) {
+        // Execute each step sequentially
+        for (const step of workflow.steps) {
+          if (controller.signal.aborted) {
+            throw new WorkflowCancelledError(runId, step.id);
+          }
+
+          const result = await this.stepExecutor.executeStep({
+            tenantId,
+            workflowId,
+            runId,
+            step,
+            stepOutputs,
+            workflowInput: workflowInput as TWorkflowInput,
+            previousStepId,
+            cancellationSignal: controller.signal,
+            stepRepo: this.stepRepo,
+            eventRepo: this.eventRepo,
+            logger: logger.child({ stepId: step.id, attempt: 1 }),
+          });
+
+          stepOutputs.set(step.id, result.output);
+          previousStepId = step.id;
+          lastStepOutput = result.output;
+        }
       }
 
       // Mark run COMPLETED
