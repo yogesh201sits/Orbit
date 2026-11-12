@@ -192,14 +192,13 @@ console.log("Workflow Run ID:", run.id);`;
             Secret cryptographic credentials for authenticating SDK workers, CLI dispatch, and external clients.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsCreateOpen(true)}
+        <Link
+          href="/app/settings/api-keys/new"
           className="flex items-center gap-1.5 px-3.5 py-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-xs font-mono font-bold uppercase tracking-wider text-white border-2 border-white shadow-[3px_3px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 transition-all"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Create New API Key</span>
-        </button>
+        </Link>
       </div>
 
       {/* Security Disclaimer Banner */}
@@ -218,13 +217,12 @@ console.log("Workflow Run ID:", run.id);`;
             description="Generate an API key to connect your worker fleets and trigger workflow executions programmatically."
             icon={<KeyRound className="w-6 h-6" />}
             action={
-              <button
-                type="button"
-                onClick={() => setIsCreateOpen(true)}
-                className="px-3.5 py-1.5 bg-[#8B5CF6] text-xs font-mono font-bold uppercase tracking-wider text-white border-2 border-white shadow-[2px_2px_0px_#000000]"
+              <Link
+                href="/app/settings/api-keys/new"
+                className="px-3.5 py-1.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-xs font-mono font-bold uppercase tracking-wider text-white border-2 border-white shadow-[2px_2px_0px_#000000] inline-block"
               >
                 Create First Key
-              </button>
+              </Link>
             }
           />
         ) : (
