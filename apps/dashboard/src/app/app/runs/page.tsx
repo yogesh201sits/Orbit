@@ -116,7 +116,7 @@ export default function RunsPage() {
             type="button"
             onClick={() => loadData(pagination.offset)}
             disabled={isLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#14141B] hover:bg-[#1B1923] border border-[#292532] text-xs font-medium text-zinc-300 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-black hover:bg-[#14101F] border-2 border-[#8B5CF6] text-xs font-mono font-bold uppercase tracking-wider text-white shadow-[2px_2px_0px_#8B5CF6] active:translate-x-[1px] active:translate-y-[1px] transition-all"
           >
             <RotateCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#8B5CF6]" : ""}`} />
             <span>Refresh</span>
@@ -125,36 +125,36 @@ export default function RunsPage() {
       />
 
       {/* Filter Toolbar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 font-mono">
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Status Dropdown */}
-          <div className="bg-[#14141B] border border-[#292532] rounded-md px-2.5 py-1.5 text-xs font-mono">
+          <div className="bg-[#0A0A0F] border-2 border-[#2D273D] px-3 py-1.5 text-xs font-mono">
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="bg-transparent text-zinc-200 outline-none cursor-pointer"
+              className="bg-transparent text-white font-bold uppercase tracking-wider outline-none cursor-pointer"
             >
               {statuses.map((s) => (
-                <option key={s.value} value={s.value} className="bg-[#14141B]">
-                  {s.label}
+                <option key={s.value} value={s.value} className="bg-black text-white">
+                  STATUS: {s.label.toUpperCase()}
                 </option>
               ))}
             </select>
           </div>
 
           {/* Workflow Filter */}
-          <div className="bg-[#14141B] border border-[#292532] rounded-md px-2.5 py-1.5 text-xs font-mono">
+          <div className="bg-[#0A0A0F] border-2 border-[#2D273D] px-3 py-1.5 text-xs font-mono">
             <select
               value={selectedWorkflow}
               onChange={(e) => setSelectedWorkflow(e.target.value)}
-              className="bg-transparent text-zinc-200 outline-none cursor-pointer max-w-[200px]"
+              className="bg-transparent text-white font-bold uppercase tracking-wider outline-none cursor-pointer max-w-[200px]"
             >
-              <option value="all" className="bg-[#14141B]">
-                All Workflows
+              <option value="all" className="bg-black text-white">
+                ALL WORKFLOWS
               </option>
               {workflows.map((wf) => (
-                <option key={wf.id} value={wf.id} className="bg-[#14141B]">
-                  {wf.name}
+                <option key={wf.id} value={wf.id} className="bg-black text-white">
+                  {wf.name.toUpperCase()}
                 </option>
               ))}
             </select>
@@ -163,41 +163,41 @@ export default function RunsPage() {
 
         {/* Search by Run ID */}
         <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-2.5 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#8B5CF6] absolute left-3 top-2.5 pointer-events-none" />
           <input
             type="search"
             value={searchRunId}
             onChange={(e) => setSearchRunId(e.target.value)}
             placeholder="Search run ID or workflow..."
-            className="w-full bg-[#14141B] border border-[#292532] rounded-md pl-9 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 outline-none focus:border-[#8B5CF6] transition-colors"
+            className="w-full bg-[#0A0A0F] border-2 border-[#2D273D] pl-9 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 outline-none focus:border-[#8B5CF6] transition-colors"
           />
         </div>
       </div>
 
       {/* Runs Table */}
-      <div className="rounded-lg border border-[#292532] bg-[#14141B] overflow-hidden">
+      <div className="border-2 border-[#2D273D] bg-black overflow-hidden shadow-[4px_4px_0px_#000000] font-mono">
         {filteredRuns.length === 0 ? (
           <EmptyState
             title="No executions found"
             description="No workflow runs matched the selected filters."
-            icon={<PlayCircle className="w-6 h-6" />}
+            icon={<PlayCircle className="w-6 h-6 text-[#A78BFA]" />}
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-sans">
-              <thead className="bg-[#0D0D12] border-b border-[#292532] text-zinc-400 font-mono uppercase text-[10px] tracking-wider">
+            <table className="w-full text-left text-xs font-mono">
+              <thead className="bg-[#050508] border-b-2 border-[#2D273D] text-white uppercase text-[11px] font-bold tracking-wider">
                 <tr>
-                  <th className="py-3 px-4 font-medium">Run ID</th>
-                  <th className="py-3 px-4 font-medium">Workflow</th>
-                  <th className="py-3 px-4 font-medium">Version</th>
-                  <th className="py-3 px-4 font-medium">Status</th>
-                  <th className="py-3 px-4 font-medium">Duration</th>
-                  <th className="py-3 px-4 font-medium">Started</th>
-                  <th className="py-3 px-4 font-medium">Trigger</th>
-                  <th className="py-3 px-4 font-medium text-right">Actions</th>
+                  <th className="py-3 px-4">Run ID</th>
+                  <th className="py-3 px-4">Workflow</th>
+                  <th className="py-3 px-4">Version</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Duration</th>
+                  <th className="py-3 px-4">Started</th>
+                  <th className="py-3 px-4">Trigger</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#292532]/60 font-mono">
+              <tbody className="divide-y-2 divide-[#2D273D]/60 bg-black">
                 {filteredRuns.map((run) => {
                   const isTerminal = ["completed", "failed", "cancelled", "timed_out"].includes(
                     run.status
@@ -205,7 +205,7 @@ export default function RunsPage() {
                   return (
                     <tr
                       key={run.id}
-                      className="hover:bg-[#1B1923]/60 transition-colors group cursor-pointer"
+                      className="hover:bg-[#14101F] transition-colors group cursor-pointer"
                     >
                       <td className="py-3.5 px-4 text-zinc-300">
                         <div className="flex items-center gap-1.5">
@@ -254,9 +254,9 @@ export default function RunsPage() {
                                 setDialogAction("cancel");
                               }}
                               title="Cancel execution"
-                              className="p-1 rounded text-zinc-400 hover:text-rose-400 hover:bg-rose-950/40 border border-transparent hover:border-rose-900/50 transition-colors"
+                              className="p-1 rounded text-zinc-400 hover:text-white hover:bg-[#1B1923] border border-transparent hover:border-[#8B5CF6]/50 transition-colors"
                             >
-                              <Ban className="w-3.5 h-3.5" />
+                              <Ban className="w-3.5 h-3.5 text-[#A78BFA]" />
                             </button>
                           )}
 
@@ -270,9 +270,9 @@ export default function RunsPage() {
                                 setDialogAction("retry");
                               }}
                               title="Retry run execution"
-                              className="p-1 rounded text-zinc-400 hover:text-[#A78BFA] hover:bg-purple-950/40 border border-transparent hover:border-[#8B5CF6]/40 transition-colors"
+                              className="p-1 rounded text-zinc-400 hover:text-white hover:bg-[#1B1923] border border-transparent hover:border-[#8B5CF6]/50 transition-colors"
                             >
-                              <RotateCcw className="w-3.5 h-3.5" />
+                              <RotateCcw className="w-3.5 h-3.5 text-[#A78BFA]" />
                             </button>
                           )}
 

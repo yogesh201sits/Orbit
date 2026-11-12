@@ -1,29 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090D;
-  --foreground: #F5F3FF;
+  --background: #000000;
+  --foreground: #FFFFFF;
 
-  --sidebar: #0D0D12;
-  --sidebar-border: #292532;
-  --sidebar-accent: #1B1923;
-  --sidebar-accent-foreground: #F5F3FF;
+  --sidebar: #050508;
+  --sidebar-border: #8B5CF6;
+  --sidebar-accent: #151120;
+  --sidebar-accent-foreground: #FFFFFF;
 
-  --card: #14141B;
-  --card-foreground: #F5F3FF;
-  --card-elevated: #1B1923;
+  --card: #0A0A0F;
+  --card-foreground: #FFFFFF;
+  --card-elevated: #14101F;
 
-  --border: #292532;
+  --border: #2D273D;
+  --border-strong: #8B5CF6;
   --secondary-text: #A1A1AA;
-  --muted-bg: #1B1923;
+  --muted-bg: #0D0D14;
 
   --primary-purple: #8B5CF6;
   --hover-purple: #7C3AED;
   --soft-purple: #A78BFA;
+  --lavender: #C4B5FD;
 
-  --status-success: #22C55E;
-  --status-warning: #F59E0B;
-  --status-error: #EF4444;
+  --status-active: #8B5CF6;
+  --status-muted: #52525B;
+  --status-white: #FFFFFF;
 }
 
 @theme inline {
@@ -35,26 +37,26 @@
   --color-card: var(--card);
   --color-card-elevated: var(--card-elevated);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-secondary-text: var(--secondary-text);
   --color-muted-bg: var(--muted-bg);
   --color-primary-purple: var(--primary-purple);
   --color-hover-purple: var(--hover-purple);
   --color-soft-purple: var(--soft-purple);
-  --color-status-success: var(--status-success);
-  --color-status-warning: var(--status-warning);
-  --color-status-error: var(--status-error);
+  --color-lavender: var(--lavender);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 * {
   border-color: var(--border);
+  border-radius: 0 !important;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #000000;
+  color: #FFFFFF;
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -63,18 +65,82 @@ code, kbd, samp, pre {
   font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+/* Brutalist Hard Shadow Classes */
+.brutal-border {
+  border: 2px solid #2D273D;
+}
+
+.brutal-border-purple {
+  border: 2px solid #8B5CF6;
+}
+
+.brutal-border-white {
+  border: 2px solid #FFFFFF;
+}
+
+.brutal-box {
+  background-color: #0A0A0F;
+  border: 2px solid #2D273D;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.brutal-box-purple {
+  background-color: #0D0A17;
+  border: 2px solid #8B5CF6;
+  box-shadow: 4px 4px 0px #8B5CF6;
+}
+
+.brutal-btn {
+  background-color: #8B5CF6;
+  color: #FFFFFF;
+  border: 2px solid #8B5CF6;
+  box-shadow: 3px 3px 0px #FFFFFF;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.1s ease-in-out;
+}
+
+.brutal-btn:hover {
+  background-color: #7C3AED;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #FFFFFF;
+}
+
+.brutal-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #FFFFFF;
+}
+
+.brutal-btn-ghost {
+  background-color: #0A0A0F;
+  color: #FFFFFF;
+  border: 2px solid #2D273D;
+  box-shadow: 3px 3px 0px #000000;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.1s ease-in-out;
+}
+
+.brutal-btn-ghost:hover {
+  border-color: #8B5CF6;
+  color: #A78BFA;
+  box-shadow: 3px 3px 0px #8B5CF6;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090D;
+  background: #000000;
+  border-left: 1px solid #2D273D;
 }
 ::-webkit-scrollbar-thumb {
-  background: #292532;
-  border-radius: 4px;
+  background: #8B5CF6;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3F3C4E;
+  background: #A78BFA;
 }

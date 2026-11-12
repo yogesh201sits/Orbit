@@ -26,25 +26,29 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "rounded-lg border border-[#292532] bg-[#14141B] p-4 flex flex-col justify-between transition-colors",
-        highlight && "border-[#8B5CF6]/40 shadow-[0_0_12px_rgba(139,92,246,0.15)]",
+        "rounded-none border-2 bg-[#0A0A0F] p-4 flex flex-col justify-between transition-transform",
+        highlight
+          ? "border-[#8B5CF6] shadow-[4px_4px_0px_#8B5CF6] bg-[#0E0A1A]"
+          : "border-[#2D273D] shadow-[3px_3px_0px_#000000] hover:border-[#8B5CF6]/60",
         className
       )}
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium text-[#A1A1AA] uppercase tracking-wider">{label}</span>
-        {icon && <div className="text-zinc-500">{icon}</div>}
+      <div className="flex items-center justify-between gap-2 border-b border-[#2D273D]/80 pb-2">
+        <span className="text-[11px] font-mono font-bold text-[#A1A1AA] uppercase tracking-widest">
+          {label}
+        </span>
+        {icon && <div className="text-[#8B5CF6]">{icon}</div>}
       </div>
 
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="font-mono text-2xl font-semibold tracking-tight text-[#F5F3FF]">
+        <span className="font-mono text-2xl font-black tracking-tight text-white">
           {value}
         </span>
         {trend && (
           <span
             className={cn(
-              "text-xs font-mono font-medium",
-              trend.isPositive ? "text-emerald-400" : "text-rose-400"
+              "text-xs font-mono font-bold tracking-wider",
+              trend.isPositive ? "text-white" : "text-zinc-500"
             )}
           >
             {trend.value}
@@ -53,7 +57,9 @@ export function MetricCard({
       </div>
 
       {subtext && (
-        <div className="mt-1.5 text-xs text-zinc-500 font-mono truncate">{subtext}</div>
+        <div className="mt-2 text-[10px] text-zinc-400 font-mono tracking-wider uppercase border-t border-[#2D273D]/60 pt-1.5 truncate">
+          // {subtext}
+        </div>
       )}
     </div>
   );

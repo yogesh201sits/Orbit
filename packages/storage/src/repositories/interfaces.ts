@@ -32,6 +32,7 @@ export interface PaginatedResult<T> {
 // ─── Tenant Repository ───────────────────────────────────────────────
 
 export interface CreateTenantInput {
+  readonly id?: string | undefined;
   readonly name: string;
   readonly slug: string;
   readonly metadata?: Json;

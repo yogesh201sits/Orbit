@@ -14,6 +14,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@clerk/backend": "^3.27.0",
     "@durable/engine": "workspace:*",
     "@durable/scheduler": "workspace:*",
     "@durable/shared": "workspace:*",

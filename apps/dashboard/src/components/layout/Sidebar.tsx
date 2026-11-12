@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SignInButton, Show, UserButton } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   GitFork,
@@ -75,20 +76,28 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
   const sidebarContent = (
     <aside
       className={cn(
-        "h-screen flex flex-col bg-[#0D0D12] border-r border-[#292532] transition-all duration-200 select-none",
+        "h-screen flex flex-col bg-[#050508] border-r-2 border-[#8B5CF6] transition-all duration-150 select-none",
         collapsed ? "w-16" : "w-60"
       )}
     >
       {/* Brand Header */}
-      <div className="h-14 flex items-center justify-between px-3.5 border-b border-[#292532] shrink-0">
+      <div className="h-16 flex items-center justify-between px-3.5 border-b-2 border-[#2D273D] bg-black shrink-0">
         <Link href="/app" className="flex items-center gap-2.5 overflow-hidden group">
-          <div className="w-8 h-8 rounded-lg bg-[#1B1923] border border-[#8B5CF6]/40 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(139,92,246,0.2)] group-hover:border-[#8B5CF6] transition-colors">
-            <Radio className="w-4 h-4 text-[#A78BFA]" />
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col truncate">
-              <span className="font-mono text-sm font-bold tracking-wider text-[#F5F3FF]">ORBIT</span>
-              <span className="text-[10px] text-[#A1A1AA] uppercase tracking-widest font-mono">Control Plane</span>
+          {collapsed ? (
+            <div className="w-9 h-9 border-2 border-[#8B5CF6] overflow-hidden flex items-center justify-center shrink-0 shadow-[2px_2px_0px_#FFFFFF] bg-black">
+              <img
+                src="/orbit-logo.jpg"
+                alt="Orbit"
+                className="h-9 w-auto max-w-none object-cover object-left scale-150 -ml-1.5"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <img
+                src="/orbit-logo.jpg"
+                alt="Orbit Logo"
+                className="h-8 w-auto object-contain"
+              />
             </div>
           )}
         </Link>
@@ -98,35 +107,34 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
             type="button"
             onClick={toggleCollapse}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            className="text-zinc-500 hover:text-zinc-200 p-1.5 rounded-md hover:bg-[#1B1923] transition-colors hidden md:flex"
+            className="text-white hover:text-[#A78BFA] p-1 hover:bg-[#151120] border border-transparent hover:border-[#8B5CF6] hidden md:flex transition-colors"
           >
             {collapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
           </button>
         )}
       </div>
 
-      {/* Project / Environment Indicator */}
+      {/* Project Indicator */}
       {!collapsed ? (
-        <div className="px-3.5 py-3 border-b border-[#292532]/70 bg-[#09090D]/50">
+        <div className="px-3.5 py-2.5 border-b-2 border-[#2D273D] bg-[#0A0A0F]">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-mono text-zinc-300">
+            <div className="flex items-center gap-2 text-xs font-mono font-bold text-white uppercase tracking-wider">
               <Layers className="w-3.5 h-3.5 text-[#8B5CF6]" />
-              <span className="truncate font-medium">Acme Corp</span>
+              <span className="truncate">ACME CORP</span>
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-800/40">
-              <CircleDot className="w-2.5 h-2.5" />
-              Live
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-black uppercase px-2 py-0.5 bg-black text-white border border-white shadow-[2px_2px_0px_#8B5CF6]">
+              ONLINE
             </span>
           </div>
         </div>
       ) : (
-        <div className="py-2.5 flex justify-center border-b border-[#292532]">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#22c55e]" title="Project: Acme Corp (Live)" />
+        <div className="py-2.5 flex justify-center border-b-2 border-[#2D273D] bg-[#0A0A0F]">
+          <span className="w-2 h-2 bg-[#8B5CF6] shadow-[0_0_6px_#8B5CF6]" title="Project: Acme Corp" />
         </div>
       )}
 
       {/* Main Navigation */}
-      <nav className="flex-1 py-3 px-2 flex flex-col gap-1 overflow-y-auto scrollbar-none">
+      <nav className="flex-1 py-3 px-2 flex flex-col gap-1.5 overflow-y-auto scrollbar-none font-mono">
         {NAV_ITEMS.map((item) => {
           const active = isActive(item);
           const Icon = item.icon;
@@ -137,68 +145,87 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
               onClick={onMobileClose}
               title={collapsed ? item.label : undefined}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-colors relative group",
+                "flex items-center gap-3 px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all",
                 active
-                  ? "bg-[#1B1923] text-[#F5F3FF] border border-[#8B5CF6]/40 shadow-[0_0_10px_rgba(139,92,246,0.15)]"
-                  : "text-[#A1A1AA] hover:text-[#F5F3FF] hover:bg-[#14141B]"
+                  ? "bg-[#8B5CF6] text-white border-2 border-white shadow-[3px_3px_0px_#FFFFFF]"
+                  : "text-zinc-400 hover:text-white hover:bg-[#14101F] hover:border-2 hover:border-[#8B5CF6]/60 border-2 border-transparent"
               )}
             >
               <Icon
                 className={cn(
                   "w-4 h-4 shrink-0 transition-colors",
-                  active ? "text-[#A78BFA]" : "text-zinc-500 group-hover:text-zinc-300"
+                  active ? "text-white" : "text-zinc-400"
                 )}
               />
               {!collapsed && <span className="truncate">{item.label}</span>}
               {active && !collapsed && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#8B5CF6]" />
+                <span className="ml-auto text-[10px] font-black text-white">▶</span>
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Bottom Area */}
-      <div className="p-2 border-t border-[#292532] flex flex-col gap-1 shrink-0">
+      {/* Bottom Settings Area */}
+      <div className="p-2 border-t-2 border-[#2D273D] flex flex-col gap-1.5 shrink-0 bg-black font-mono">
         <Link
           href="/app/settings"
           onClick={onMobileClose}
           title={collapsed ? "Settings" : undefined}
           className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-colors group",
+            "flex items-center gap-3 px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all",
             pathname.startsWith("/app/settings")
-              ? "bg-[#1B1923] text-[#F5F3FF] border border-[#8B5CF6]/40 shadow-[0_0_10px_rgba(139,92,246,0.15)]"
-              : "text-[#A1A1AA] hover:text-[#F5F3FF] hover:bg-[#14141B]"
+              ? "bg-[#8B5CF6] text-white border-2 border-white shadow-[3px_3px_0px_#FFFFFF]"
+              : "text-zinc-400 hover:text-white hover:bg-[#14101F] hover:border-2 hover:border-[#8B5CF6]/60 border-2 border-transparent"
           )}
         >
-          <Settings
-            className={cn(
-              "w-4 h-4 shrink-0 transition-colors",
-              pathname.startsWith("/app/settings")
-                ? "text-[#A78BFA]"
-                : "text-zinc-500 group-hover:text-zinc-300"
-            )}
-          />
+          <Settings className="w-4 h-4 shrink-0 text-white" />
           {!collapsed && <span>Settings</span>}
         </Link>
 
-        {/* Future Clerk User Integration Placeholder */}
+        {/* Clerk User Controls */}
         <div
-          title={collapsed ? "Connected: dev-user-01" : undefined}
+          title={collapsed ? "Operator" : undefined}
           className={cn(
-            "mt-1 p-2 rounded-md bg-[#14141B] border border-[#292532] flex items-center gap-2.5",
-            collapsed ? "justify-center px-1" : "px-2.5"
+            "p-2 bg-[#0A0A0F] border-2 border-[#2D273D] flex items-center gap-2",
+            collapsed ? "justify-center px-1" : "px-2"
           )}
         >
-          <div className="w-6 h-6 rounded-full bg-[#8B5CF6]/20 border border-[#8B5CF6]/40 flex items-center justify-center text-[10px] font-mono font-semibold text-[#A78BFA] shrink-0">
-            DV
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col truncate">
-              <span className="text-[11px] font-medium text-zinc-200 truncate">dev-operator</span>
-              <span className="text-[9px] font-mono text-zinc-500 truncate">clerk-ready</span>
-            </div>
-          )}
+          <Suspense fallback={<div className="w-7 h-7 bg-black border border-[#2D273D]" />}>
+            <Show when="signed-in">
+              <div className="flex items-center gap-2 overflow-hidden w-full">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox: "w-7 h-7 rounded-none border border-white",
+                    },
+                  }}
+                />
+                {!collapsed && (
+                  <div className="flex flex-col truncate">
+                    <span className="text-[11px] font-bold text-white uppercase tracking-wider truncate">
+                      OPERATOR
+                    </span>
+                    <span className="text-[9px] text-[#A78BFA] uppercase tracking-widest truncate">
+                      AUTHENTICATED
+                    </span>
+                  </div>
+                )}
+              </div>
+            </Show>
+            <Show when="signed-out">
+              <div className="flex items-center gap-2 w-full justify-center">
+                <SignInButton mode="modal">
+                  <button
+                    type="button"
+                    className="w-full px-2 py-1 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white text-[10px] font-mono font-bold uppercase tracking-wider border border-white transition-all shadow-[2px_2px_0px_#000000]"
+                  >
+                    {collapsed ? "LOGIN" : "SIGN IN"}
+                  </button>
+                </SignInButton>
+              </div>
+            </Show>
+          </Suspense>
         </div>
       </div>
     </aside>
@@ -213,10 +240,10 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
       {isMobileOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
-            className="fixed inset-0 bg-black/80 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/90 backdrop-blur-xs transition-opacity"
             onClick={onMobileClose}
           />
-          <div className="relative z-10 w-64 max-w-[80vw] h-full shadow-2xl animate-in slide-in-from-left duration-200">
+          <div className="relative z-10 w-64 max-w-[80vw] h-full shadow-2xl animate-in slide-in-from-left duration-150">
             {sidebarContent}
           </div>
         </div>

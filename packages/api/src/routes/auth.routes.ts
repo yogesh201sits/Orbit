@@ -28,6 +28,7 @@ export function createAuthRoutes() {
           plainTextKey: result.plainTextKey,
           expiresAt: result.apiKey.expiresAt,
           createdAt: result.apiKey.createdAt,
+          clerkApiKeyId: result.clerkApiKey?.id,
         },
       },
       201

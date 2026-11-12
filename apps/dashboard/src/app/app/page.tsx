@@ -12,6 +12,7 @@ import {
   ArrowUpRight,
   Clock,
   Zap,
+  KeyRound,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { MetricCard } from "@/components/ui/MetricCard";
@@ -66,15 +67,15 @@ export default function OverviewPage() {
         actions={
           <div className="flex items-center gap-2">
             {/* Time Range Selector */}
-            <div className="flex items-center bg-[#14141B] border border-[#292532] rounded-md p-0.5 text-xs font-mono">
+            <div className="flex items-center bg-black border-2 border-[#2D273D] p-0.5 text-xs font-mono">
               {(["1h", "24h", "7d", "30d"] as const).map((range) => (
                 <button
                   key={range}
                   type="button"
                   onClick={() => setTimeRange(range)}
-                  className={`px-2 py-1 rounded transition-colors ${
+                  className={`px-2.5 py-1 font-bold uppercase transition-all ${
                     timeRange === range
-                      ? "bg-[#1B1923] text-[#A78BFA] font-semibold border border-[#8B5CF6]/30"
+                      ? "bg-[#8B5CF6] text-white border-2 border-white shadow-[2px_2px_0px_#FFFFFF]"
                       : "text-zinc-400 hover:text-white"
                   }`}
                 >
@@ -83,12 +84,20 @@ export default function OverviewPage() {
               ))}
             </div>
 
+            <Link
+              href="/app/settings/api-keys"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#8B5CF6] hover:bg-[#7C3AED] border-2 border-white text-xs font-mono font-bold uppercase tracking-wider text-white shadow-[2px_2px_0px_#000000] active:translate-x-[1px] active:translate-y-[1px] transition-all"
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>API Keys & SDK</span>
+            </Link>
+
             <button
               type="button"
               onClick={loadData}
               disabled={isLoading}
               title="Refresh overview metrics"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#14141B] hover:bg-[#1B1923] border border-[#292532] text-xs font-medium text-zinc-300 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-black hover:bg-[#14101F] border-2 border-[#8B5CF6] text-xs font-mono font-bold uppercase tracking-wider text-white shadow-[2px_2px_0px_#8B5CF6] active:translate-x-[1px] active:translate-y-[1px] transition-all"
             >
               <RotateCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#8B5CF6]" : ""}`} />
               <span>Refresh</span>
@@ -110,7 +119,7 @@ export default function OverviewPage() {
           value={metrics ? `${metrics.successRate}%` : "..."}
           subtext="Target: >98%"
           highlight
-          icon={<Zap className="w-4 h-4 text-emerald-400" />}
+          icon={<Zap className="w-4 h-4 text-[#C4B5FD]" />}
         />
         <MetricCard
           label="Running"
@@ -122,7 +131,7 @@ export default function OverviewPage() {
           label="Failed runs"
           value={metrics ? metrics.failedRuns : "..."}
           subtext="Requires inspection"
-          icon={<AlertTriangle className="w-4 h-4 text-rose-400" />}
+          icon={<AlertTriangle className="w-4 h-4 text-zinc-300" />}
         />
         <MetricCard
           label="Workflows"
@@ -134,27 +143,29 @@ export default function OverviewPage() {
           label="Active workers"
           value={metrics ? String(metrics.activeWorkers).padStart(2, "0") : "..."}
           subtext="Polling job queues"
-          icon={<Server className="w-4 h-4 text-emerald-400" />}
+          icon={<Server className="w-4 h-4 text-white" />}
         />
       </div>
 
       {/* Activity Chart & Attention Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono">
         {/* Execution Activity Chart */}
-        <div className="lg:col-span-2 rounded-lg border border-[#292532] bg-[#14141B] p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-4 border-b border-[#292532]/60">
+        <div className="lg:col-span-2 border-2 border-[#2D273D] bg-[#0A0A0F] p-5 flex flex-col justify-between shadow-[4px_4px_0px_#000000]">
+          <div className="flex items-center justify-between pb-3 border-b-2 border-[#2D273D]">
             <div>
-              <h2 className="text-sm font-semibold text-[#F5F3FF]">Execution Volume</h2>
-              <p className="text-xs text-[#A1A1AA] mt-0.5">Durable runs executed across all queues</p>
+              <h2 className="text-sm font-black uppercase tracking-wider text-white">
+                Execution Volume
+              </h2>
+              <p className="text-xs text-zinc-400 mt-0.5">// Durable runs executed across all queues</p>
             </div>
             <div className="flex items-center gap-4 text-xs font-mono">
-              <span className="flex items-center gap-1.5 text-zinc-300">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#8B5CF6]" />
-                Successful
+              <span className="flex items-center gap-1.5 text-white font-bold">
+                <span className="w-2.5 h-2.5 bg-[#8B5CF6]" />
+                SUCCESS
               </span>
-              <span className="flex items-center gap-1.5 text-zinc-300">
-                <span className="w-2.5 h-2.5 rounded-sm bg-rose-500" />
-                Failed
+              <span className="flex items-center gap-1.5 text-zinc-400 font-bold">
+                <span className="w-2.5 h-2.5 bg-[#292532] border border-white/40" />
+                FAILED
               </span>
             </div>
           </div>
@@ -172,25 +183,25 @@ export default function OverviewPage() {
                 return (
                   <div key={bar.timestamp} className="flex-1 flex flex-col items-center gap-2 group relative">
                     {/* Tooltip */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 z-20 pointer-events-none bg-[#0D0D12] border border-[#292532] text-[11px] font-mono px-2 py-1 rounded shadow-lg whitespace-nowrap">
-                      <div>Total: {bar.total}</div>
-                      <div className="text-emerald-400">Success: {bar.success}</div>
-                      {bar.failed > 0 && <div className="text-rose-400">Failed: {bar.failed}</div>}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-12 z-20 pointer-events-none bg-black border-2 border-white text-[11px] font-mono font-bold px-2.5 py-1 shadow-[2px_2px_0px_#8B5CF6] whitespace-nowrap">
+                      <div>TOTAL: {bar.total}</div>
+                      <div className="text-white">OK: {bar.success}</div>
+                      {bar.failed > 0 && <div className="text-zinc-400">ERR: {bar.failed}</div>}
                     </div>
 
-                    <div className="w-full max-w-[42px] flex flex-col justify-end h-36 bg-[#1B1923]/40 rounded-t overflow-hidden">
+                    <div className="w-full max-w-[42px] flex flex-col justify-end h-36 bg-black border-2 border-[#2D273D] overflow-hidden">
                       {failHeight > 0 && (
                         <div
                           style={{ height: `${failHeight}%` }}
-                          className="w-full bg-rose-500/90 transition-all duration-300"
+                          className="w-full bg-[#292532] border-t-2 border-white/20 transition-all duration-150"
                         />
                       )}
                       <div
                         style={{ height: `${successHeight}%` }}
-                        className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] transition-all duration-300 shadow-[0_0_8px_rgba(139,92,246,0.25)]"
+                        className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] transition-all duration-150 shadow-[0_0_8px_rgba(139,92,246,0.3)]"
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-zinc-500">{bar.timestamp}</span>
+                    <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase">{bar.timestamp}</span>
                   </div>
                 );
               })}
@@ -199,21 +210,21 @@ export default function OverviewPage() {
         </div>
 
         {/* Attention Section */}
-        <div className="rounded-lg border border-[#292532] bg-[#14141B] p-5 flex flex-col">
-          <div className="flex items-center justify-between pb-3 border-b border-[#292532]/60">
+        <div className="border-2 border-[#8B5CF6] bg-[#0A0A0F] p-5 flex flex-col shadow-[4px_4px_0px_#8B5CF6]">
+          <div className="flex items-center justify-between pb-3 border-b-2 border-[#2D273D]">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
-              <h2 className="text-sm font-semibold text-[#F5F3FF]">System Attention</h2>
+              <AlertTriangle className="w-4 h-4 text-[#A78BFA]" />
+              <h2 className="text-sm font-black uppercase tracking-wider text-white">System Attention</h2>
             </div>
-            <span className="text-xs font-mono text-zinc-500">
-              {attentionRuns.length + unhealthyWorkers.length} items
+            <span className="text-xs font-mono font-bold text-[#A78BFA]">
+              [{attentionRuns.length + unhealthyWorkers.length} ALERTS]
             </span>
           </div>
 
           <div className="mt-3 flex-1 flex flex-col gap-2.5 overflow-y-auto">
             {attentionRuns.length === 0 && unhealthyWorkers.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-zinc-500">
-                <span className="text-xs">All executions and workers are healthy.</span>
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-zinc-500 font-mono text-xs uppercase">
+                <span>[ ALL SYSTEMS NORMAL ]</span>
               </div>
             ) : (
               <>
@@ -221,12 +232,12 @@ export default function OverviewPage() {
                   <Link
                     key={run.id}
                     href={`/app/runs/${run.id}`}
-                    className="p-2.5 rounded-md bg-[#1B1923] border border-rose-900/30 hover:border-rose-700/50 transition-colors flex items-start justify-between gap-2 text-xs"
+                    className="p-3 bg-black border-2 border-[#2D273D] hover:border-[#8B5CF6] hover:shadow-[3px_3px_0px_#8B5CF6] transition-all flex items-start justify-between gap-2 text-xs"
                   >
-                    <div className="truncate">
-                      <div className="font-medium text-rose-300 truncate">{run.workflowName || run.workflowKey}</div>
-                      <div className="font-mono text-[11px] text-zinc-500 truncate mt-0.5">
-                        {run.error?.message || "Execution error"}
+                    <div className="truncate font-mono">
+                      <div className="font-bold text-white uppercase truncate">{run.workflowName || run.workflowKey}</div>
+                      <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                        // {run.error?.message || "Execution error"}
                       </div>
                     </div>
                     <StatusBadge status={run.status} size="sm" />
@@ -236,12 +247,12 @@ export default function OverviewPage() {
                 {unhealthyWorkers.map((worker) => (
                   <div
                     key={worker.id}
-                    className="p-2.5 rounded-md bg-[#1B1923] border border-amber-900/30 flex items-start justify-between gap-2 text-xs"
+                    className="p-3 bg-black border-2 border-[#2D273D] flex items-start justify-between gap-2 text-xs"
                   >
-                    <div className="truncate">
-                      <div className="font-medium text-amber-300 truncate">{worker.name}</div>
-                      <div className="font-mono text-[11px] text-zinc-500 truncate mt-0.5">
-                        Heartbeat stalled ({formatRelativeTime(worker.lastHeartbeat)})
+                    <div className="truncate font-mono">
+                      <div className="font-bold text-white uppercase truncate">{worker.name}</div>
+                      <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                        // Stalled: {formatRelativeTime(worker.lastHeartbeat)}
                       </div>
                     </div>
                     <StatusBadge status={worker.status} size="sm" />
@@ -254,17 +265,17 @@ export default function OverviewPage() {
       </div>
 
       {/* Recent Executions & Worker Health Side-by-Side */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono">
         {/* Recent Executions Table */}
-        <div className="lg:col-span-2 rounded-lg border border-[#292532] bg-[#14141B] overflow-hidden">
-          <div className="px-5 py-3.5 border-b border-[#292532] flex items-center justify-between">
+        <div className="lg:col-span-2 border-2 border-[#2D273D] bg-[#0A0A0F] overflow-hidden shadow-[4px_4px_0px_#000000]">
+          <div className="px-5 py-3.5 border-b-2 border-[#2D273D] bg-black flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold text-[#F5F3FF]">Recent Executions</h2>
-              <p className="text-xs text-[#A1A1AA]">Latest workflow instances</p>
+              <h2 className="text-sm font-black uppercase tracking-wider text-white">Recent Executions</h2>
+              <p className="text-xs text-zinc-400">// Latest workflow instances</p>
             </div>
             <Link
               href="/app/runs"
-              className="text-xs font-mono text-[#A78BFA] hover:text-[#C4B5FD] flex items-center gap-1 transition-colors"
+              className="text-xs font-bold uppercase tracking-wider text-[#A78BFA] hover:text-white flex items-center gap-1 transition-colors"
             >
               <span>View all runs</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
@@ -272,47 +283,47 @@ export default function OverviewPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-sans">
-              <thead className="bg-[#0D0D12] border-b border-[#292532] text-zinc-400 font-mono uppercase text-[10px] tracking-wider">
+            <table className="w-full text-left text-xs font-mono">
+              <thead className="bg-[#050508] border-b-2 border-[#2D273D] text-white uppercase text-[11px] font-bold tracking-wider">
                 <tr>
-                  <th className="py-2.5 px-4 font-medium">Workflow</th>
-                  <th className="py-2.5 px-4 font-medium">Run ID</th>
-                  <th className="py-2.5 px-4 font-medium">Status</th>
-                  <th className="py-2.5 px-4 font-medium">Duration</th>
-                  <th className="py-2.5 px-4 font-medium">Started</th>
-                  <th className="py-2.5 px-4 font-medium text-right">Trigger</th>
+                  <th className="py-3 px-4">Workflow</th>
+                  <th className="py-3 px-4">Run ID</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Duration</th>
+                  <th className="py-3 px-4">Started</th>
+                  <th className="py-3 px-4 text-right">Trigger</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#292532]/60 font-mono">
+              <tbody className="divide-y-2 divide-[#2D273D]/60 bg-black">
                 {recentRuns.map((run) => (
                   <tr
                     key={run.id}
-                    className="hover:bg-[#1B1923]/60 transition-colors cursor-pointer group"
+                    className="hover:bg-[#14101F] transition-colors cursor-pointer group"
                   >
-                    <td className="py-3 px-4 font-sans font-medium text-[#F5F3FF] truncate max-w-[160px]">
-                      <Link href={`/app/runs/${run.id}`} className="hover:text-[#A78BFA] transition-colors block truncate">
+                    <td className="py-3.5 px-4 font-bold text-white truncate max-w-[160px]">
+                      <Link href={`/app/runs/${run.id}`} className="hover:text-[#A78BFA] transition-colors block truncate uppercase">
                         {run.workflowName || run.workflowKey}
                       </Link>
                     </td>
-                    <td className="py-3 px-4 text-zinc-400">
+                    <td className="py-3.5 px-4 text-zinc-300">
                       <div className="flex items-center gap-1">
-                        <Link href={`/app/runs/${run.id}`} className="hover:text-zinc-200">
+                        <Link href={`/app/runs/${run.id}`} className="hover:text-white">
                           {truncateId(run.id, 8, 4)}
                         </Link>
                         <CopyButton value={run.id} />
                       </div>
                     </td>
-                    <td className="py-3 px-4">
+                    <td className="py-3.5 px-4">
                       <StatusBadge status={run.status} size="sm" />
                     </td>
-                    <td className="py-3 px-4 text-zinc-300">
+                    <td className="py-3.5 px-4 text-white font-bold">
                       {formatDuration(run.durationMs, run.startedAt, run.completedAt)}
                     </td>
-                    <td className="py-3 px-4 text-zinc-400">
+                    <td className="py-3.5 px-4 text-zinc-400">
                       {formatRelativeTime(run.startedAt || run.createdAt)}
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      <span className="px-1.5 py-0.5 rounded text-[10px] uppercase bg-[#1B1923] border border-[#292532] text-zinc-400">
+                    <td className="py-3.5 px-4 text-right">
+                      <span className="px-2 py-0.5 text-[10px] uppercase font-bold bg-[#14101F] border border-[#2D273D] text-white">
                         {run.triggerType || "api"}
                       </span>
                     </td>
@@ -324,15 +335,15 @@ export default function OverviewPage() {
         </div>
 
         {/* Worker Health List */}
-        <div className="rounded-lg border border-[#292532] bg-[#14141B] overflow-hidden flex flex-col">
-          <div className="px-5 py-3.5 border-b border-[#292532] flex items-center justify-between">
+        <div className="border-2 border-[#2D273D] bg-[#0A0A0F] overflow-hidden flex flex-col shadow-[4px_4px_0px_#000000]">
+          <div className="px-5 py-3.5 border-b-2 border-[#2D273D] bg-black flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-semibold text-[#F5F3FF]">Workers Health</h2>
-              <p className="text-xs text-[#A1A1AA]">Active executor fleet</p>
+              <h2 className="text-sm font-black uppercase tracking-wider text-white">Workers Health</h2>
+              <p className="text-xs text-zinc-400">// Active executor fleet</p>
             </div>
             <Link
               href="/app/workers"
-              className="text-xs font-mono text-[#A78BFA] hover:text-[#C4B5FD] flex items-center gap-1 transition-colors"
+              className="text-xs font-bold uppercase tracking-wider text-[#A78BFA] hover:text-white flex items-center gap-1 transition-colors"
             >
               <span>View all</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
@@ -343,26 +354,26 @@ export default function OverviewPage() {
             {workers.slice(0, 4).map((worker) => (
               <div
                 key={worker.id}
-                className="p-3 rounded-md border border-[#292532] bg-[#0D0D12] flex flex-col gap-2"
+                className="p-3 border-2 border-[#2D273D] bg-black flex flex-col gap-2 shadow-[2px_2px_0px_#000000]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 truncate">
-                    <Server className="w-3.5 h-3.5 text-zinc-500 shrink-0" />
-                    <span className="font-mono text-xs font-medium text-zinc-200 truncate">{worker.name}</span>
+                    <Server className="w-3.5 h-3.5 text-[#8B5CF6] shrink-0" />
+                    <span className="font-mono text-xs font-bold text-white uppercase truncate">{worker.name}</span>
                   </div>
                   <StatusBadge status={worker.status} size="sm" />
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-zinc-400 pt-1 border-t border-[#292532]/50">
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-zinc-400 pt-1.5 border-t border-[#2D273D]">
                   <div>
-                    <span className="text-zinc-500">Jobs: </span>
-                    <span className="text-zinc-200">
+                    <span className="text-zinc-500 uppercase">Jobs: </span>
+                    <span className="text-white font-bold">
                       {worker.metadata?.activeJobs || 0} / {worker.metadata?.concurrency || 64}
                     </span>
                   </div>
                   <div className="text-right">
-                    <span className="text-zinc-500">Heartbeat: </span>
-                    <span className="text-zinc-300">{formatRelativeTime(worker.lastHeartbeat)}</span>
+                    <span className="text-zinc-500 uppercase">Ping: </span>
+                    <span className="text-zinc-300 font-bold">{formatRelativeTime(worker.lastHeartbeat)}</span>
                   </div>
                 </div>
               </div>

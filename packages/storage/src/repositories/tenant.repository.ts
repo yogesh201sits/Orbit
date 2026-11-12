@@ -25,6 +25,7 @@ export class PrismaTenantRepository implements ITenantRepository {
     try {
       return await this.db(tx).tenant.create({
         data: {
+          ...(input.id ? { id: input.id } : {}),
           name: input.name,
           slug: input.slug,
           metadata: input.metadata ?? Prisma.JsonNull,

@@ -64,7 +64,7 @@ export default function WorkersPage() {
             type="button"
             onClick={loadData}
             disabled={isLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#14141B] hover:bg-[#1B1923] border border-[#292532] text-xs font-medium text-zinc-300 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0A0A0F] hover:bg-[#14141B] border-2 border-[#2D273D] text-xs font-mono uppercase tracking-wider text-white transition-all shadow-[2px_2px_0px_#000000]"
           >
             <RotateCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#8B5CF6]" : ""}`} />
             <span>Refresh</span>
@@ -78,7 +78,7 @@ export default function WorkersPage() {
           label="Active Fleet"
           value={String(activeWorkers.length).padStart(2, "0")}
           subtext="Healthy heartbeats"
-          icon={<Server className="w-4 h-4 text-emerald-400" />}
+          icon={<Server className="w-4 h-4 text-white" />}
         />
         <MetricCard
           label="Total Nodes"
@@ -90,28 +90,28 @@ export default function WorkersPage() {
           label="Fleet Concurrency"
           value={totalConcurrency}
           subtext="Max concurrent jobs"
-          icon={<Layers className="w-4 h-4 text-zinc-400" />}
+          icon={<Layers className="w-4 h-4 text-white" />}
         />
         <MetricCard
           label="Processing Jobs"
           value={totalActiveJobs}
           subtext="Claimed queue leases"
           highlight
-          icon={<Activity className="w-4 h-4 text-[#8B5CF6]" />}
+          icon={<Activity className="w-4 h-4 text-white" />}
         />
       </div>
 
       {/* Workers Grid */}
-      <div className="rounded-lg border border-[#292532] bg-[#14141B] overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-[#292532] flex items-center justify-between">
+      <div className="border-2 border-[#2D273D] bg-black shadow-[4px_4px_0px_#000000] overflow-hidden">
+        <div className="px-5 py-3.5 border-b-2 border-[#2D273D] bg-[#0A0A0F] flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-[#F5F3FF]">Worker Nodes</h2>
-            <p className="text-xs text-[#A1A1AA]">
+            <h2 className="text-sm font-mono font-bold uppercase tracking-wider text-white">Worker Nodes</h2>
+            <p className="text-xs font-mono text-[#A1A1AA]">
               Real-time heartbeat polling and lease-claiming agents
             </p>
           </div>
-          <span className="text-xs font-mono text-zinc-500">
-            {workers.length} registered instances
+          <span className="text-xs font-mono text-[#A78BFA] font-bold">
+            [{workers.length} INSTANCES]
           </span>
         </div>
 
@@ -123,18 +123,18 @@ export default function WorkersPage() {
           />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-sans">
-              <thead className="bg-[#0D0D12] border-b border-[#292532] text-zinc-400 font-mono uppercase text-[10px] tracking-wider">
+            <table className="w-full text-left text-xs font-mono">
+              <thead className="bg-[#0A0A0F] border-b-2 border-[#2D273D] text-[#A1A1AA] uppercase text-[11px] tracking-wider">
                 <tr>
-                  <th className="py-3 px-4 font-medium">Worker Name / Host</th>
-                  <th className="py-3 px-4 font-medium">Status</th>
-                  <th className="py-3 px-4 font-medium">Assigned Queues</th>
-                  <th className="py-3 px-4 font-medium">Active Jobs / Concurrency</th>
-                  <th className="py-3 px-4 font-medium">Last Heartbeat</th>
-                  <th className="py-3 px-4 font-medium text-right">Version</th>
+                  <th className="py-3 px-4 font-bold text-white">Worker Name / Host</th>
+                  <th className="py-3 px-4 font-bold text-white">Status</th>
+                  <th className="py-3 px-4 font-bold text-white">Assigned Queues</th>
+                  <th className="py-3 px-4 font-bold text-white">Active Jobs / Concurrency</th>
+                  <th className="py-3 px-4 font-bold text-white">Last Heartbeat</th>
+                  <th className="py-3 px-4 font-bold text-white text-right">Version</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#292532]/60 font-mono">
+              <tbody className="divide-y divide-[#2D273D]">
                 {workers.map((worker) => {
                   const isStale =
                     worker.status !== "active" ||
@@ -142,14 +142,14 @@ export default function WorkersPage() {
                       Date.now() - new Date(worker.lastHeartbeat).getTime() > 30000);
 
                   return (
-                    <tr key={worker.id} className="hover:bg-[#1B1923]/60 transition-colors">
+                    <tr key={worker.id} className="hover:bg-[#0A0A0F] transition-colors">
                       <td className="py-3.5 px-4 font-mono">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-[#F5F3FF]">{worker.name}</span>
+                          <span className="font-bold text-white">{worker.name}</span>
                           <CopyButton value={worker.id} />
                         </div>
                         {worker.hostname && (
-                          <div className="text-[11px] text-zinc-500 mt-0.5">{worker.hostname}</div>
+                          <div className="text-[11px] text-[#A1A1AA] mt-0.5">{worker.hostname}</div>
                         )}
                       </td>
                       <td className="py-3.5 px-4">
@@ -160,34 +160,34 @@ export default function WorkersPage() {
                           {worker.queues.map((q) => (
                             <span
                               key={q}
-                              className="px-1.5 py-0.5 rounded text-[10px] bg-[#0D0D12] border border-[#292532] text-zinc-300"
+                              className="px-1.5 py-0.5 text-[10px] bg-[#050508] border border-[#2D273D] text-white font-mono"
                             >
                               {q}
                             </span>
                           ))}
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-300">
-                        <span className="font-semibold text-white">
+                      <td className="py-3.5 px-4 text-white">
+                        <span className="font-bold text-[#C4B5FD]">
                           {worker.metadata?.activeJobs || 0}
                         </span>{" "}
                         /{" "}
-                        <span className="text-zinc-500">
+                        <span className="text-[#A1A1AA]">
                           {worker.metadata?.concurrency || 64}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-zinc-400">
-                        <div className="flex items-center gap-1.5">
+                      <td className="py-3.5 px-4 text-white">
+                        <div className="flex items-center gap-2">
                           <span
-                            className={`w-2 h-2 rounded-full ${
-                              isStale ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
+                            className={`w-2 h-2 ${
+                              isStale ? "bg-[#2D273D]" : "bg-[#8B5CF6] shadow-[0_0_8px_#8B5CF6] animate-pulse"
                             }`}
                           />
                           <span>{formatRelativeTime(worker.lastHeartbeat)}</span>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-right text-zinc-400">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#1B1923] border border-[#292532]">
+                      <td className="py-3.5 px-4 text-right text-white">
+                        <span className="px-2 py-0.5 text-[10px] font-mono font-bold bg-[#0A0A0F] border border-[#8B5CF6] text-[#A78BFA]">
                           v{worker.metadata?.version || "0.1.0"}
                         </span>
                       </td>

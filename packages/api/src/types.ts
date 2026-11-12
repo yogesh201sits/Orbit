@@ -17,6 +17,7 @@ export type AppVariables = {
   requestId: string;
   tenantId?: string;
   apiKey?: ApiKeyRecord;
+  clerkAuth?: any;
   services: ApiServices;
 };
 

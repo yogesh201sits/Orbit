@@ -1,13 +1,4 @@
-/**
- * Server-side authentication & tenant boundary.
- *
- * Prepared for future Clerk integration.
- * In production with Clerk, this module will resolve the session from Clerk's SDK
- * (e.g. auth().userId, auth().orgId) and map it to the active Orbit tenant.
- *
- * In local development, it resolves the tenant from server environment variables
- * (e.g. ORBIT_TENANT_ID, ORBIT_API_KEY) without exposing credentials to client bundles.
- */
+import { auth } from "@clerk/nextjs/server";
 
 export interface TenantContext {
   readonly tenantId: string;
@@ -20,7 +11,7 @@ export interface AuthSession {
   readonly isAuthenticated: boolean;
   readonly userId: string | null;
   readonly tenant: TenantContext;
-  readonly authProvider: "dev-boundary" | "clerk-future";
+  readonly authProvider: "dev-boundary" | "clerk";
 }
 
 const DEFAULT_DEV_TENANT: TenantContext = {
@@ -31,12 +22,30 @@ const DEFAULT_DEV_TENANT: TenantContext = {
 };
 
 export async function getServerSession(): Promise<AuthSession> {
-  // Replaceable boundary: when Clerk is configured, call `await auth()` from `@clerk/nextjs` here.
+  try {
+    const { userId, orgId, orgSlug } = await auth();
+    if (userId) {
+      return {
+        isAuthenticated: true,
+        userId,
+        tenant: {
+          tenantId: orgId || process.env.ORBIT_TENANT_ID || DEFAULT_DEV_TENANT.tenantId,
+          tenantSlug: orgSlug || DEFAULT_DEV_TENANT.tenantSlug,
+          tenantName: orgSlug ? orgSlug.toUpperCase() : DEFAULT_DEV_TENANT.tenantName,
+          environment: DEFAULT_DEV_TENANT.environment,
+        },
+        authProvider: "clerk",
+      };
+    }
+  } catch {
+    // Fallback for static build phases or environments without request context
+  }
+
   return {
-    isAuthenticated: true,
-    userId: "dev-user-01",
+    isAuthenticated: false,
+    userId: null,
     tenant: DEFAULT_DEV_TENANT,
-    authProvider: "dev-boundary",
+    authProvider: "clerk",
   };
 }
 

@@ -9,6 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.9.25",
+    "@clerk/themes": "^2.4.57",
+    "@durable/sdk": "workspace:*",
+    "@durable/shared": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-react": "^1.72.0",
     "next": "16.4.6",

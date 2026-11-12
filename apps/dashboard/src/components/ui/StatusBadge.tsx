@@ -10,43 +10,43 @@ export interface StatusBadgeProps {
 export function StatusBadge({ status, className, size = "md" }: StatusBadgeProps) {
   const norm = status.toLowerCase();
 
-  let dotColor = "bg-zinc-400";
+  let dotColor = "bg-zinc-500";
   let textColor = "text-zinc-300";
-  let bgBorder = "bg-[#14141B] border-[#292532]";
+  let bgBorder = "bg-black border-2 border-zinc-700";
 
   if (norm === "running" || norm === "processing") {
     dotColor = "bg-[#8B5CF6] animate-pulse";
-    textColor = "text-[#A78BFA]";
-    bgBorder = "bg-[#1B1923] border-[#8B5CF6]/30";
+    textColor = "text-white font-bold";
+    bgBorder = "bg-[#120D22] border-2 border-[#8B5CF6] shadow-[2px_2px_0px_#8B5CF6]";
   } else if (norm === "completed" || norm === "active" || norm === "success") {
-    dotColor = "bg-[#22C55E]";
-    textColor = "text-[#4ADE80]";
-    bgBorder = "bg-[#142318] border-[#22C55E]/30";
+    dotColor = "bg-white";
+    textColor = "text-white font-bold";
+    bgBorder = "bg-black border-2 border-white shadow-[2px_2px_0px_#FFFFFF]";
   } else if (norm === "failed" || norm === "error" || norm === "timed_out") {
-    dotColor = "bg-[#EF4444]";
-    textColor = "text-[#F87171]";
-    bgBorder = "bg-[#281416] border-[#EF4444]/30";
+    dotColor = "bg-[#A78BFA]";
+    textColor = "text-[#A78BFA] font-bold";
+    bgBorder = "bg-black border-2 border-[#8B5CF6] shadow-[2px_2px_0px_#8B5CF6]";
   } else if (norm === "cancelled" || norm === "paused" || norm === "inactive") {
-    dotColor = "bg-[#F59E0B]";
-    textColor = "text-[#FBBF24]";
-    bgBorder = "bg-[#241E14] border-[#F59E0B]/30";
+    dotColor = "bg-zinc-500";
+    textColor = "text-zinc-400 font-bold";
+    bgBorder = "bg-black border-2 border-zinc-800";
   } else if (norm === "pending" || norm === "waiting" || norm === "scheduled") {
-    dotColor = "bg-[#A1A1AA]";
-    textColor = "text-[#D4D4D8]";
-    bgBorder = "bg-[#1A1A22] border-[#292532]";
+    dotColor = "bg-zinc-400";
+    textColor = "text-zinc-300 font-medium";
+    bgBorder = "bg-[#0A0A0F] border-2 border-zinc-700";
   }
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 font-mono uppercase tracking-wider font-medium border rounded-md select-none",
-        size === "sm" ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-[11px]",
+        "inline-flex items-center gap-1.5 font-mono uppercase tracking-widest select-none rounded-none",
+        size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-[11px]",
         bgBorder,
         textColor,
         className
       )}
     >
-      <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", dotColor)} />
+      <span className={cn("w-1.5 h-1.5 shrink-0 rounded-none", dotColor)} />
       {status.replace(/_/g, " ")}
     </span>
   );

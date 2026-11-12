@@ -33,21 +33,23 @@ export default function SettingsLayout({
       <div className="flex flex-col md:flex-row gap-6">
         {/* Settings Sub-nav */}
         <aside className="w-full md:w-56 shrink-0">
-          <nav className="flex md:flex-col gap-1 border-b md:border-b-0 md:border-r border-[#292532] pb-3 md:pb-0 md:pr-4">
+          <nav className="flex md:flex-col gap-2 border-b-2 md:border-b-0 md:border-r-2 border-[#2D273D] pb-3 md:pb-0 md:pr-4">
             {SETTINGS_NAV.map((item) => {
-              const active = pathname === item.href || (pathname === "/app/settings" && item.href === "/app/settings/general");
+              const active =
+                pathname === item.href ||
+                (pathname === "/app/settings" && item.href === "/app/settings/general");
               const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 text-xs font-mono uppercase tracking-wider transition-all border-2 ${
                     active
-                      ? "bg-[#1B1923] text-[#F5F3FF] border border-[#8B5CF6]/40 shadow-[0_0_10px_rgba(139,92,246,0.15)] font-semibold"
-                      : "text-[#A1A1AA] hover:text-[#F5F3FF] hover:bg-[#14141B]"
+                      ? "bg-[#8B5CF6] text-white border-white font-bold shadow-[3px_3px_0px_#FFFFFF]"
+                      : "bg-[#0A0A0F] text-[#A1A1AA] border-[#2D273D] hover:text-white hover:border-[#8B5CF6] hover:bg-[#14141B]"
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${active ? "text-[#A78BFA]" : "text-zinc-500"}`} />
+                  <Icon className={`w-4 h-4 ${active ? "text-white" : "text-[#8B5CF6]"}`} />
                   <span>{item.label}</span>
                 </Link>
               );

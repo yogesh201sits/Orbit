@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const EnvSchema = z.object({
-  PORT: z.coerce.number().default(3000),
+  PORT: z.coerce.number().default(3001),
   HOST: z.string().default("0.0.0.0"),
   DATABASE_URL: z.string().default("postgresql://postgres:1234@localhost:5432/orbit_test?schema=public"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),

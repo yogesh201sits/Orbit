@@ -134,9 +134,9 @@ export default function RunDetailPage({
               <button
                 type="button"
                 onClick={() => setConfirmAction("cancel")}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/50 text-xs font-medium text-rose-300 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1B1923] hover:bg-[#252230] border border-[#8B5CF6]/40 text-xs font-medium text-white transition-colors"
               >
-                <Ban className="w-3.5 h-3.5" />
+                <Ban className="w-3.5 h-3.5 text-[#A78BFA]" />
                 <span>Cancel Run</span>
               </button>
             )}
@@ -215,21 +215,21 @@ export default function RunDetailPage({
 
         {/* Error Banner if Failed */}
         {run?.status === "failed" && run.error && (
-          <div className="mt-4 p-4 rounded-md bg-rose-950/30 border border-rose-900/50 flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-rose-300 font-semibold text-xs font-mono">
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+          <div className="mt-4 p-4 rounded-md bg-[#0D0D12] border border-[#8B5CF6]/50 shadow-[0_0_12px_rgba(139,92,246,0.12)] flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-white font-semibold text-xs font-mono">
+              <AlertTriangle className="w-4 h-4 text-[#A78BFA] shrink-0" />
               <span>Execution Failure Error:</span>
               {run.error.code && (
-                <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-900/60 border border-rose-700/50">
+                <span className="px-1.5 py-0.5 rounded text-[10px] bg-[#1B1923] border border-[#8B5CF6]/40 text-[#A78BFA]">
                   {run.error.code}
                 </span>
               )}
             </div>
-            <p className="text-xs text-rose-200/90 font-mono leading-relaxed">
+            <p className="text-xs text-zinc-300 font-mono leading-relaxed">
               {run.error.message || "An error occurred during workflow step execution."}
             </p>
             {run.error.stack && (
-              <pre className="p-2.5 rounded bg-black/50 border border-rose-950 text-[11px] font-mono text-rose-300/80 overflow-x-auto whitespace-pre leading-relaxed mt-1">
+              <pre className="p-2.5 rounded bg-black/60 border border-[#292532] text-[11px] font-mono text-zinc-300 overflow-x-auto whitespace-pre leading-relaxed mt-1">
                 {run.error.stack}
               </pre>
             )}
@@ -322,11 +322,14 @@ export default function RunDetailPage({
 
               {/* Step Error if present */}
               {selectedStep.error && (
-                <div className="p-3 rounded-md bg-rose-950/40 border border-rose-900/50 text-xs font-mono text-rose-300">
-                  <div className="font-semibold text-rose-400 mb-1">Step Error:</div>
+                <div className="p-3 rounded-md bg-[#0D0D12] border border-[#8B5CF6]/50 text-xs font-mono text-zinc-300">
+                  <div className="font-semibold text-white mb-1 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-[#A78BFA]" />
+                    <span>Step Error:</span>
+                  </div>
                   <p className="leading-relaxed">{selectedStep.error.message}</p>
                   {selectedStep.error.stack && (
-                    <pre className="mt-2 p-2 rounded bg-black/60 text-[10px] text-rose-400/80 overflow-x-auto whitespace-pre">
+                    <pre className="mt-2 p-2 rounded bg-black/60 border border-[#292532] text-[10px] text-zinc-400 overflow-x-auto whitespace-pre">
                       {selectedStep.error.stack}
                     </pre>
                   )}

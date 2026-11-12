@@ -1,10 +1,15 @@
 import { createClient, disconnect } from "@durable/storage";
-import { createApp } from "./app";
+import { createApp, buildServices } from "./app";
 import { loadConfig } from "./config/env";
 
 const config = loadConfig();
 const client = createClient(config.DATABASE_URL);
-const app = createApp({ client });
+const services = buildServices(client);
+
+// Ensure primary default workspace exists in database
+await services.auth.ensureDefaultTenant();
+
+const app = createApp({ client, services });
 
 const server = Bun.serve({
   port: config.PORT,

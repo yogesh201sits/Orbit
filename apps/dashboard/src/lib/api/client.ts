@@ -54,6 +54,26 @@ export class OrbitApiClient {
 
     if (this.apiKey) {
       headers["Authorization"] = `Bearer ${this.apiKey}`;
+    } else if (typeof window !== "undefined" && (window as any).Clerk?.session) {
+      try {
+        const token = await (window as any).Clerk.session.getToken();
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+      } catch {
+        // Clerk frontend session not yet initialized
+      }
+    } else if (typeof window === "undefined") {
+      try {
+        const { auth } = await import("@clerk/nextjs/server");
+        const session = await auth();
+        const token = await session.getToken();
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+      } catch {
+        // Not in server request context or build time
+      }
     }
 
     try {
