@@ -49,14 +49,14 @@ async function main() {
       tenantId: tenant.id,
       key: orderWorkflow.id,
       name: orderWorkflow.name,
-      metadata: orderWorkflow.metadata,
+      metadata: orderWorkflow.metadata as any,
     });
 
     const verRecord = await versions.create({
       workflowId: wfRecord.id,
       version: orderWorkflow.version,
-      definition: orderWorkflow.toMetadataPayload().version.definition,
-      checksum: orderWorkflow.toMetadataPayload().version.checksum,
+      definition: orderWorkflow.toMetadataPayload().version.definition as any,
+      checksum: orderWorkflow.toMetadataPayload().version.checksum ?? "checksum",
       isActive: true,
     });
     console.log(`✅ [2/5] Workflow & Version registered: ${wfRecord.key} v${verRecord.version}`);

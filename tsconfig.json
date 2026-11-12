@@ -27,7 +27,8 @@
       "@durable/api": ["./packages/api/src/index.ts"],
       "@durable/api/*": ["./packages/api/src/*"],
       "@durable/sdk": ["./packages/sdk/src/index.ts"],
-      "@durable/sdk/*": ["./packages/sdk/src/*"]
+      "@durable/sdk/*": ["./packages/sdk/src/*"],
+      "@/*": ["./apps/dashboard/src/*"]
     }
   },
   "include": [
