@@ -1,26 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #FFFFFF;
+  --background: #08070D;
+  --foreground: #F8F7FC;
 
   --sidebar: #050508;
   --sidebar-border: #8B5CF6;
   --sidebar-accent: #151120;
   --sidebar-accent-foreground: #FFFFFF;
 
-  --card: #0A0A0F;
-  --card-foreground: #FFFFFF;
-  --card-elevated: #14101F;
+  --card: #0D0B15;
+  --card-elevated: #141020;
+  --card-surface: #171326;
 
-  --border: #2D273D;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-highlight: rgba(167, 139, 250, 0.35);
   --border-strong: #8B5CF6;
-  --secondary-text: #A1A1AA;
-  --muted-bg: #0D0D14;
+  --secondary-text: #A6A1B5;
+  --muted-text: #706B80;
 
   --primary-purple: #8B5CF6;
-  --hover-purple: #7C3AED;
-  --soft-purple: #A78BFA;
+  --bright-purple: #A78BFA;
+  --deep-purple: #6D28D9;
+  --purple-glow: rgba(139, 92, 246, 0.18);
   --lavender: #C4B5FD;
 
   --status-active: #8B5CF6;
@@ -39,10 +41,9 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-secondary-text: var(--secondary-text);
-  --color-muted-bg: var(--muted-bg);
   --color-primary-purple: var(--primary-purple);
-  --color-hover-purple: var(--hover-purple);
-  --color-soft-purple: var(--soft-purple);
+  --color-bright-purple: var(--bright-purple);
+  --color-deep-purple: var(--deep-purple);
   --color-lavender: var(--lavender);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -50,19 +51,63 @@
 
 * {
   border-color: var(--border);
-  border-radius: 0 !important;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: #000000;
-  color: #FFFFFF;
-  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background-color: #08070D;
+  color: #F8F7FC;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code, kbd, samp, pre {
   font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Background Texture Patterns */
+.bg-dot-matrix {
+  background-image: radial-gradient(rgba(139, 92, 246, 0.18) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-dot-matrix-subtle {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.bg-grid-tech {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.bg-radial-purple-glow {
+  background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.18) 0%, rgba(8, 7, 13, 0) 70%);
+}
+
+.bg-radial-center-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.14) 0%, rgba(8, 7, 13, 0) 65%);
+}
+
+/* Scanline Overlay */
+.scanline-texture {
+  background: linear-gradient(
+    rgba(18, 16, 28, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.03),
+    rgba(0, 255, 0, 0.01),
+    rgba(0, 0, 255, 0.03)
+  );
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
 }
 
 /* Brutalist Hard Shadow Classes */
@@ -74,53 +119,49 @@ code, kbd, samp, pre {
   border: 2px solid #8B5CF6;
 }
 
-.brutal-border-white {
-  border: 2px solid #FFFFFF;
-}
-
 .brutal-box {
-  background-color: #0A0A0F;
-  border: 2px solid #2D273D;
-  box-shadow: 3px 3px 0px #000000;
+  background-color: #0D0B15;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .brutal-box-purple {
-  background-color: #0D0A17;
-  border: 2px solid #8B5CF6;
-  box-shadow: 4px 4px 0px #8B5CF6;
+  background-color: #141020;
+  border: 1px solid #8B5CF6;
+  box-shadow: 4px 4px 0px rgba(139, 92, 246, 0.5);
 }
 
 .brutal-btn {
   background-color: #8B5CF6;
   color: #FFFFFF;
-  border: 2px solid #8B5CF6;
-  box-shadow: 3px 3px 0px #FFFFFF;
+  border: 2px solid #FFFFFF;
+  box-shadow: 3px 3px 0px #000000;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.1s ease-in-out;
+  transition: all 0.12s ease-in-out;
 }
 
 .brutal-btn:hover {
   background-color: #7C3AED;
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px #FFFFFF;
+  box-shadow: 4px 4px 0px #8B5CF6;
 }
 
 .brutal-btn:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0px #FFFFFF;
+  box-shadow: 1px 1px 0px #8B5CF6;
 }
 
 .brutal-btn-ghost {
-  background-color: #0A0A0F;
+  background-color: #0D0B15;
   color: #FFFFFF;
-  border: 2px solid #2D273D;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 3px 3px 0px #000000;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.1s ease-in-out;
+  transition: all 0.12s ease-in-out;
 }
 
 .brutal-btn-ghost:hover {
@@ -135,11 +176,12 @@ code, kbd, samp, pre {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #000000;
-  border-left: 1px solid #2D273D;
+  background: #08070D;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
 }
 ::-webkit-scrollbar-thumb {
   background: #8B5CF6;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #A78BFA;
