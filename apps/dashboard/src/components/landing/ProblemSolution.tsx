@@ -7,7 +7,7 @@ export function ProblemSolution() {
   const [simulatedCrash, setSimulatedCrash] = useState(true);
 
   return (
-    <section className="py-24 sm:py-32 relative bg-[#08070D] overflow-hidden">
+    <section className="py-24 sm:py-32 relative bg-[#08070D]/40 backdrop-blur-[1px] overflow-hidden">
       {/* Background glow */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-radial-center-glow opacity-60 pointer-events-none"

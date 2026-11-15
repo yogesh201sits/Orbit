@@ -21,7 +21,7 @@ export function FeaturesBento() {
   const [activeBackoffAttempt, setActiveBackoffAttempt] = useState(2);
 
   return (
-    <section id="capabilities" className="py-24 sm:py-32 relative bg-[#08070D] font-mono">
+    <section id="capabilities" className="py-24 sm:py-32 relative bg-[#08070D]/40 backdrop-blur-[1px] font-mono">
       {/* Background glow and subtle dot grid */}
       <div
         className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-radial-purple-glow opacity-50 pointer-events-none"

@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { OrbitSymbol } from "./OrbitSymbol";
 import { Terminal, ArrowUpRight } from "lucide-react";
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -25,10 +24,11 @@ export function Footer() {
           {/* Brand Column */}
           <div className="col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
-              <OrbitSymbol size={28} />
-              <span className="text-base font-black tracking-widest text-white uppercase">
-                ORBIT
-              </span>
+              <img
+                src="/orbit-logo.png"
+                alt="Orbit Logo"
+                className="h-7 w-auto object-contain"
+              />
             </Link>
             <p className="text-xs text-[#A6A1B5] font-sans max-w-sm leading-relaxed">
               Durable workflow orchestration platform for developers. Your workflows keep moving, even when things go wrong.

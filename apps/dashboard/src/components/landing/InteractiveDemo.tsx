@@ -153,7 +153,7 @@ export function InteractiveDemo() {
   };
 
   return (
-    <section id="interactive-demo" className="py-24 sm:py-32 relative bg-[#08070D] font-mono">
+    <section id="interactive-demo" className="py-24 sm:py-32 relative bg-[#08070D]/40 backdrop-blur-[1px] font-mono">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <span className="text-xs font-bold uppercase tracking-widest text-[#A78BFA]">

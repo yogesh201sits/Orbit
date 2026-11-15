@@ -4,17 +4,38 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, Terminal, Sparkles, Shield, Cpu, Zap } from "lucide-react";
 import { WorkflowGraphVisualizer } from "./WorkflowGraphVisualizer";
+import { GradientASCII } from "@/components/ui/GradientASCII";
+import MaskedHeading from "./MaskedHeading";
 
 export function Hero() {
   return (
     <section className="relative pt-28 sm:pt-36 lg:pt-44 pb-20 overflow-hidden">
+      {/* Dynamic React Bits GradientASCII interactive background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-auto">
+        <GradientASCII
+          colors={["#1e1b4b", "#4c1d95", "#8b5cf6", "#c4b5fd", "#38bdf8"]}
+          shape="horizon"
+          characters=" =+xX0S8#@"
+          cellSize={16}
+          density={0.75}
+          glyphOpacity={0.8}
+          gradientOpacity={0.65}
+          glow={0.3}
+          speed={0.7}
+          mouseInteraction={true}
+          clickEffect="wave"
+        />
+        {/* Seamless bottom fade mask to blend with dark page */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#08070D]/40 to-[#08070D] pointer-events-none" />
+      </div>
+
       {/* Background radial glows and grid textures */}
       <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-radial-purple-glow opacity-80 pointer-events-none"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] bg-radial-purple-glow opacity-60 pointer-events-none z-[1]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-grid-tech bg-dot-matrix-subtle opacity-35 pointer-events-none"
+        className="absolute inset-0 bg-grid-tech bg-dot-matrix-subtle opacity-25 pointer-events-none z-[1]"
         aria-hidden="true"
       />
 
@@ -28,13 +49,36 @@ export function Hero() {
             </span>
           </div>
 
-          {/* Oversized Editorial Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[84px] font-black tracking-tight text-[#F8F7FC] leading-[1.05] uppercase font-sans">
-            Workflows that <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-[#A78BFA] via-[#8B5CF6] to-[#C4B5FD] bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(139,92,246,0.6)]">
-              never lose their way.
-            </span>
-          </h1>
+          {/* Oversized Editorial Headline with MaskedHeading */}
+          <div className="w-full max-w-5xl mx-auto my-2">
+            <MaskedHeading
+              text="Designed in the details"
+              tag="h1"
+              mediaType="video"
+              src="/reel.mp4"
+              poster="/reel-poster.jpg"
+              fillScale={1.25}
+              parallax={26}
+              reveal="scale"
+              trigger="view"
+              spotlight={false}
+              spotlightRadius={180}
+              outline={false}
+              duration={1.1}
+              stagger={0.09}
+              drift={18}
+              hoverZoom={0}
+              align="center"
+              brightness={1}
+              saturation={1}
+              grayscale={false}
+              outlineWidth={1}
+              weight={700}
+              tracking={-0.03}
+              lineHeight={1.06}
+              textScale={0.115}
+            />
+          </div>
 
           {/* Supporting Copy */}
           <p className="text-base sm:text-lg md:text-xl text-[#A6A1B5] font-normal leading-relaxed max-w-2xl font-sans">

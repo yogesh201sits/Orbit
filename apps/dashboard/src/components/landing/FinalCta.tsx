@@ -3,11 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, Terminal, Sparkles } from "lucide-react";
-import { OrbitSymbol } from "./OrbitSymbol";
 
 export function FinalCta() {
   return (
-    <section className="py-28 sm:py-36 relative bg-[#08070D] font-mono overflow-hidden border-t border-white/10">
+    <section className="py-28 sm:py-36 relative bg-[#08070D]/40 backdrop-blur-[1px] font-mono overflow-hidden border-t border-white/10">
       {/* Background Animated Orbital Ring */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-radial-purple-glow opacity-60 pointer-events-none"
@@ -20,7 +19,11 @@ export function FinalCta() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
         <div className="flex justify-center">
-          <OrbitSymbol size={48} />
+          <img
+            src="/orbit-logo.png"
+            alt="Orbit Logo"
+            className="h-10 sm:h-12 w-auto object-contain"
+          />
         </div>
 
         <div className="space-y-4 max-w-3xl mx-auto">

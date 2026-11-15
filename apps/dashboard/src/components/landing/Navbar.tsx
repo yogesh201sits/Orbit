@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { OrbitSymbol } from "./OrbitSymbol";
 import { Menu, X, ArrowUpRight, Terminal, ChevronRight } from "lucide-react";
 
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -51,15 +50,14 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           {/* Left: Brand */}
           <Link href="/" className="flex items-center gap-3 group">
-            <OrbitSymbol size={32} />
-            <div className="flex items-baseline gap-1.5 font-mono">
-              <span className="text-base sm:text-lg font-black tracking-widest text-white uppercase group-hover:text-[#A78BFA] transition-colors">
-                ORBIT
-              </span>
-              <span className="text-[10px] text-[#A78BFA] font-bold tracking-wider px-1.5 py-0.5 bg-[#141020] border border-[#8B5CF6]/40 hidden sm:inline-block">
-                v0.1.0
-              </span>
-            </div>
+            <img
+              src="/orbit-logo.png"
+              alt="Orbit Logo"
+              className="h-8 sm:h-9 w-auto object-contain"
+            />
+            <span className="text-[10px] text-[#A78BFA] font-mono font-bold tracking-wider px-1.5 py-0.5 bg-[#141020] border border-[#8B5CF6]/40 hidden sm:inline-block">
+              v0.1.0
+            </span>
           </Link>
 
           {/* Center: Desktop Navigation */}

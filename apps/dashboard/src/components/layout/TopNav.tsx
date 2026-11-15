@@ -38,7 +38,7 @@ export function TopNav({ onMobileMenuToggle }: TopNavProps) {
         </button>
 
         <Link href="/app" className="md:hidden flex items-center">
-          <img src="/orbit-logo.jpg" alt="Orbit Logo" className="h-6 w-auto object-contain" />
+          <img src="/orbit-logo.png" alt="Orbit Logo" className="h-6 w-auto object-contain" />
         </Link>
 
         {/* Breadcrumb preview */}

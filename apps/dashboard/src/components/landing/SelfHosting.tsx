@@ -27,7 +27,7 @@ bun run start`;
   };
 
   return (
-    <section id="self-hosting" className="py-24 sm:py-32 relative bg-[#0D0B15] font-mono">
+    <section id="self-hosting" className="py-24 sm:py-32 relative bg-[#0D0B15]/40 backdrop-blur-[1px] font-mono">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left: Text & Features */}

@@ -86,7 +86,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
           {collapsed ? (
             <div className="w-9 h-9 border-2 border-[#8B5CF6] overflow-hidden flex items-center justify-center shrink-0 shadow-[2px_2px_0px_#FFFFFF] bg-black">
               <img
-                src="/orbit-logo.jpg"
+                src="/orbit-logo.png"
                 alt="Orbit"
                 className="h-9 w-auto max-w-none object-cover object-left scale-150 -ml-1.5"
               />
@@ -94,7 +94,7 @@ export function Sidebar({ isMobileOpen, onMobileClose }: SidebarProps) {
           ) : (
             <div className="flex items-center gap-2">
               <img
-                src="/orbit-logo.jpg"
+                src="/orbit-logo.png"
                 alt="Orbit Logo"
                 className="h-8 w-auto object-contain"
               />
